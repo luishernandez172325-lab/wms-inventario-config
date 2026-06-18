@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Importar Catálogo — Inventario Config</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#0D2137;color:#e0e0e0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
+.card{background:#112236;border:1px solid #1e3a5c;border-radius:16px;padding:40px;max-width:540px;width:100%;text-align:center;}
+h1{color:#4ECCA3;font-size:20px;margin-bottom:8px;}
+p{color:#7a9bb5;font-size:13px;margin-bottom:20px;}
+.zona{border:2px dashed #1e3a5c;border-radius:12px;padding:30px;margin-bottom:20px;cursor:pointer;transition:border-color .2s;}
+.zona:hover{border-color:#4ECCA3;}
+.zona-text{color:#4a6a8a;font-size:13px;}
+.zona-text span{color:#4ECCA3;font-weight:700;}
+input[type=file]{display:none;}
+.btn{background:#4ECCA3;color:#0D2137;border:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:12px;display:none;}
+.btn:disabled{background:#1a3a5c;color:#4a6a8a;cursor:not-allowed;}
+.progress{background:#0D2137;border-radius:8px;height:14px;margin:16px 0;overflow:hidden;display:none;}
+.bar{height:100%;background:#4ECCA3;transition:width .3s;width:0%;}
+.log{background:#0a1a2e;border:1px solid #1a3a5c;border-radius:8px;padding:16px;font-size:12px;color:#4ECCA3;text-align:left;max-height:180px;overflow-y:auto;display:none;font-family:monospace;margin-top:12px;}
+.status{font-size:14px;color:#4ECCA3;margin-top:12px;min-height:20px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Importar Catálogo de Inventario</h1>
+  <p>Selecciona el archivo <strong>ROTACION_POR_MES.xlsx</strong> desde tu computadora. El sistema lo procesa y sube todos los artículos directamente a Firebase.</p>
+  <div class="zona" onclick="document.getElementById('fileInput').click()">
+    <div class="zona-text">📂 Haz clic aquí para seleccionar el archivo<br><span>ROTACION_POR_MES.xlsx</span></div>
+  </div>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="leerExcel(this)"/>
+  <div class="status" id="status"></div>
+  <button class="btn" id="btn" onclick="iniciar()">▶ Iniciar Importación</button>
+  <div class="progress" id="prog"><div class="bar" id="bar"></div></div>
+  <div class="log" id="log"></div>
+</div>
+<script>
+const URL_BASE = "https://inventario-config-mayoreo-default-rtdb.firebaseio.com/inventarioConfig";
+let DATOS = null;
+function leerExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('status').textContent = '⏳ Leyendo archivo...';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets['Hoja2'] || wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:['codigo','descripcion','rxm','costo'], range:1});
+      const ahora = Date.now();
+      DATOS = {};
+      rows.forEach(row => {
+        if (!row.codigo) return;
+        try {
+          const codigo = String(parseInt(row.codigo)).trim();
+          DATOS[codigo] = {
+            codigo: codigo,
+            descripcion: String(row.descripcion || '').trim(),
+            rotacionMensual: Math.round((parseFloat(row.rxm) || 0) * 100) / 100,
+            costoUnitario: Math.round((parseFloat(row.costo) || 0) * 10000) / 10000,
+            cajaMaster: null,
+            historialCambios: null,
+            fechaCreacion: ahora,
+            fechaActualizacion: ahora
+          };
+        } catch(e) {}
+      });
+      const total = Object.keys(DATOS).length;
+      document.getElementById('status').textContent = '✅ ' + total + ' artículos listos para importar.';
+      document.getElementById('btn').style.display = 'block';
+    } catch(e) {
+      document.getElementById('status').textContent = '❌ Error: ' + e.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+async function iniciar() {
+  const btn = document.getElementById('btn');
+  const log = document.getElementById('log');
+  const status = document.getElementById('status');
+  const prog = document.getElementById('prog');
+  const bar = document.getElementById('bar');
+  btn.disabled = true;
+  btn.textContent = 'Importando...';
+  prog.style.display = 'block';
+  log.style.display = 'block';
+  const codigos = Object.keys(DATOS);
+  const total = codigos.length;
+  const LOTE = 200;
+  let procesados = 0;
+  let errores = 0;
+  for (let i = 0; i < total; i += LOTE) {
+    const lote = codigos.slice(i, i + LOTE);
+    const updates = {};
+    lote.forEach(c => updates[c] = DATOS[c]);
+    try {
+      const resp = await fetch(URL_BASE + '.json', {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(updates)
+      });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      procesados += lote.length;
+    } catch(e) {
+      errores += lote.length;
+      log.innerHTML += '❌ Error lote ' + (Math.floor(i/LOTE)+1) + ': ' + e.message + '\n';
+    }
+    const pct = Math.round((i + lote.length) / total * 100);
+    bar.style.width = pct + '%';
+    status.textContent = 'Procesados: ' + procesados + ' / ' + total + ' (' + pct + '%)';
+    log.innerHTML += '✅ Lote ' + (Math.floor(i/LOTE)+1) + ': artículos ' + (i+1) + ' - ' + Math.min(i+LOTE,total) + ' OK\n';
+    log.scrollTop = log.scrollHeight;
+    await new Promise(r => setTimeout(r, 100));
+  }
+  if (errores === 0) {
+    status.textContent = '✅ ¡Listo! ' + procesados + ' artículos cargados.';
+    btn.textContent = '✅ Completado';
+    btn.style.background = '#059669';
+  } else {
+    status.textContent = '⚠️ ' + procesados + ' OK, ' + errores + ' con error.';
+  }
+}
+</script>
+</body>
+</html>
