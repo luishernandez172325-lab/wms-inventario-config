@@ -143,7 +143,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 <div class="tabs">
   <div class="tab active" onclick="showTab('dashboard')">Dashboard</div>
   <div class="tab" onclick="showTab('maxmin')">Máximos y Mínimos</div>
-  <div class="tab" onclick="showTab('cobertura')">Cobertura de Inventario</div>
+  <div class="tab" onclick="showTab('cobertura')">Meses de Inventario</div>
   <div class="tab" onclick="showTab('catalogo')">Catálogo de Productos</div>
 </div>
  
@@ -246,6 +246,9 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
     </div>
 
     <div id="mm-alert-codigo" class="alert alert-error" style="margin-top:12px;"></div>
+    <div style="margin-top:12px;">
+      <button onclick="limpiarMM()" style="padding:8px 18px;background:#f1f5f9;color:#475569;border:1.5px solid #94a3b8;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">✕ Limpiar</button>
+    </div>
   </div>
 
   <div id="mm-resultado" style="margin-top:16px;">
@@ -316,7 +319,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 <!-- TAB: COBERTURA                            -->
 <!-- ══════════════════════════════════════════ -->
 <div id="page-cobertura" class="page">
-  <div class="section-title">Cobertura de Inventario</div>
+  <div class="section-title">Meses de Inventario</div>
  
   <div class="form-card">
     <div class="form-grid">
@@ -367,6 +370,13 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
     <!-- FORMULARIO -->
     <div>
       <div class="section-title">Formulario</div>
+
+      <!-- Buscador rápido -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <input type="text" id="cat-buscar-codigo" placeholder="Buscar código..." style="flex:1;background:#fff;border:2px solid #0D2137;border-radius:8px;padding:9px 14px;color:#0D2137;font-size:14px;font-weight:700;outline:none;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
+        <button onclick="buscarEnCatalogo()" style="padding:9px 16px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">🔍 Buscar</button>
+      </div>
+
       <div class="form-card">
         <div class="form-group" style="margin-bottom:14px;">
           <label>Código de Artículo</label>
@@ -572,6 +582,30 @@ function cambiarCajasMin(delta) {
   if (nuevo < 1 || nuevo >= mmCajasMax) return;
   mmCajasMin = nuevo;
   actualizarDisplayDias();
+}
+
+function limpiarMM() {
+  document.getElementById('mm-codigo').value = '';
+  const elCaja = document.getElementById('mm-caja');
+  if (elCaja) { elCaja.value = ''; elCaja.style.cssText = ''; elCaja.placeholder = '—'; }
+  const elNueva = document.getElementById('mm-caja-nueva');
+  if (elNueva) elNueva.value = '';
+  ['mm-desc','mm-rotacion','mm-costo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const elBtn = document.getElementById('mm-btn-registrar');
+  if (elBtn) elBtn.style.display = 'none';
+  const elLec = document.getElementById('mm-presentacion-lectura');
+  if (elLec) elLec.style.display = 'none';
+  const elWrap = document.getElementById('mm-caja-nueva-wrap');
+  if (elWrap) elWrap.style.display = 'none';
+  hideAlert('mm-alert-codigo');
+  resetDisplayDias();
+  limpiarResultadosMM();
+  mmArticulo = null;
+  mmCajasMax = 2;
+  mmCajasMin = 1;
 }
 
 function resetDisplayDias() {
@@ -795,6 +829,16 @@ function limpiarCat() {
   catCodigoActual = null;
 }
  
+function buscarEnCatalogo() {
+  const codigo = document.getElementById('cat-buscar-codigo').value.trim().toUpperCase();
+  if (!codigo) return;
+  // Poner el código en el campo del formulario y disparar la búsqueda
+  document.getElementById('cat-codigo').value = codigo;
+  document.getElementById('cat-codigo').removeAttribute('readonly');
+  catModoEdicion = false;
+  buscarArticuloCat();
+}
+
 function buscarArticuloCat() {
   const codigo = document.getElementById('cat-codigo').value.trim().toUpperCase();
   if (!codigo) { showAlert('cat-alert','Ingrese un código para buscar.','warn'); return; }
