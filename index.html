@@ -8,7 +8,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0D2137;color:#e0e0e0;min-height:100vh;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;}
  
 /* ── HEADER ── */
 .header{background:linear-gradient(135deg,#0D2137 0%,#1a3a5c 100%);border-bottom:2px solid #4ECCA3;padding:14px 24px;display:flex;align-items:center;gap:16px;}
@@ -17,10 +17,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0D2137;
 .header-sep{width:1px;height:28px;background:#4ECCA3;opacity:.4;}
  
 /* ── TABS ── */
-.tabs{display:flex;gap:0;border-bottom:2px solid #1a3a5c;padding:0 24px;background:#0D2137;}
-.tab{padding:13px 22px;font-size:13px;font-weight:600;color:#7a9bb5;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;letter-spacing:.3px;white-space:nowrap;}
-.tab:hover{color:#c0d8e8;}
-.tab.active{color:#4ECCA3;border-bottom-color:#4ECCA3;}
+.tabs{display:flex;gap:0;border-bottom:2px solid #dde3ea;padding:0 24px;background:#fff;overflow-x:auto;}
+.tab{padding:13px 20px;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;letter-spacing:.3px;white-space:nowrap;}
+.tab:hover{color:#0D2137;}
+.tab.active{color:#0D2137;border-bottom-color:#4ECCA3;}
  
 /* ── LAYOUT ── */
 .page{display:none;padding:28px 24px;max-width:1100px;margin:0 auto;}
@@ -28,86 +28,103 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0D2137;
  
 /* ── DASHBOARD CARDS ── */
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:28px;}
-.dash-card{background:#112236;border:1px solid #1e3a5c;border-radius:12px;padding:22px 24px;position:relative;overflow:hidden;}
+.dash-card{background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);}
 .dash-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#4ECCA3;}
 .dash-card.warn::before{background:#f59e0b;}
 .dash-card.info::before{background:#3b82f6;}
-.dash-card.muted::before{background:#6b7280;}
-.dash-label{font-size:11px;color:#7a9bb5;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.dash-value{font-size:32px;font-weight:700;color:#fff;line-height:1;}
-.dash-sub{font-size:11px;color:#4ECCA3;margin-top:6px;}
+.dash-card.muted::before{background:#94a3b8;}
+.dash-label{font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700;}
+.dash-value{font-size:28px;font-weight:700;color:#0D2137;line-height:1;}
+.dash-sub{font-size:11px;color:#1D9E75;margin-top:6px;font-weight:600;}
  
 /* ── SECTION TITLE ── */
-.section-title{font-size:13px;font-weight:700;color:#4ECCA3;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:18px;padding-bottom:8px;border-bottom:1px solid #1a3a5c;}
+.section-title{font-size:11px;font-weight:700;color:#0D2137;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;padding-bottom:6px;border-bottom:2px solid #4ECCA3;display:inline-block;}
  
 /* ── FORM CARD ── */
-.form-card{background:#112236;border:1px solid #1e3a5c;border-radius:12px;padding:24px;margin-bottom:20px;}
+.form-card{background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 6px rgba(13,33,55,.07);}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
 .form-group{display:flex;flex-direction:column;gap:6px;}
-.form-group label{font-size:11px;color:#7a9bb5;text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
-.form-group input{background:#0D2137;border:1px solid #1e3a5c;border-radius:8px;padding:10px 14px;color:#e0e0e0;font-size:14px;outline:none;transition:border-color .2s;}
-.form-group input:focus{border-color:#4ECCA3;}
-.form-group input[readonly]{color:#7a9bb5;cursor:default;}
+.form-group label{font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;}
+.form-group input{background:#f8fafc;border:1.5px solid #94a3b8;border-radius:8px;padding:10px 14px;color:#0D2137;font-size:14px;outline:none;transition:all .2s;}
+.form-group input:focus{border-color:#0D2137;background:#fff;}
+.form-group input[readonly]{color:#475569;background:#f8fafc;border-color:#94a3b8;cursor:default;}
 .form-group input.error{border-color:#ef4444;}
  
 /* ── BOTONES ── */
 .btn{padding:10px 20px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
-.btn-primary{background:#4ECCA3;color:#0D2137;}
-.btn-primary:hover{background:#3ab88d;}
-.btn-secondary{background:#1a3a5c;color:#c0d8e8;border:1px solid #1e3a5c;}
-.btn-secondary:hover{background:#1e3a5c;}
+.btn-primary{background:#0D2137;color:#4ECCA3;}
+.btn-primary:hover{background:#1a3a5c;}
+.btn-secondary{background:#f1f5f9;color:#334155;border:1.5px solid #94a3b8;}
+.btn-secondary:hover{background:#e2e8f0;}
 .btn-danger{background:#ef4444;color:#fff;}
 .btn-danger:hover{background:#dc2626;}
-.btn-warning{background:#f59e0b;color:#0D2137;}
+.btn-warning{background:#f59e0b;color:#fff;}
 .btn-warning:hover{background:#d97706;}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
  
 /* ── RESULTADOS ── */
-.result-card{background:#0a1a2e;border:1px solid #4ECCA3;border-radius:12px;padding:22px;margin-top:20px;}
+.result-card{background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:18px;margin-top:16px;box-shadow:0 2px 6px rgba(13,33,55,.07);}
 .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px;}
-.result-item{background:#112236;border-radius:8px;padding:14px;}
-.result-item label{font-size:10px;color:#7a9bb5;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:4px;}
-.result-item .val{font-size:20px;font-weight:700;color:#4ECCA3;}
-.result-item .val.secondary{color:#e0e0e0;font-size:16px;}
-.formula-box{background:#0D2137;border:1px solid #1a3a5c;border-radius:8px;padding:14px;font-size:12px;color:#7a9bb5;line-height:1.8;font-family:monospace;white-space:pre-wrap;}
+.result-item{background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:8px;padding:12px;}
+.result-item label{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:4px;}
+.result-item .val{font-size:20px;font-weight:700;color:#0D2137;}
+.result-item .val.secondary{color:#334155;font-size:16px;}
+.formula-box{background:#f8fafc;border-left:3px solid #1D9E75;border-radius:0 8px 8px 0;padding:12px 16px;font-size:12px;color:#475569;line-height:1.9;font-family:monospace;white-space:pre-wrap;}
  
 /* ── ALERTAS ── */
 .alert{border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px;display:none;}
 .alert.show{display:block;}
-.alert-error{background:#1f0a0a;border:1px solid #ef4444;color:#fca5a5;}
-.alert-warn{background:#1f150a;border:1px solid #f59e0b;color:#fcd34d;}
-.alert-success{background:#0a1f15;border:1px solid #4ECCA3;color:#6ee7b7;}
-.alert-info{background:#0a0f1f;border:1px solid #3b82f6;color:#93c5fd;}
+.alert-error{background:#fef2f2;border:1.5px solid #fca5a5;color:#b91c1c;}
+.alert-warn{background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;}
+.alert-success{background:#f0fdf4;border:1.5px solid #86efac;color:#15803d;}
+.alert-info{background:#eff6ff;border:1.5px solid #bfdbfe;color:#1d4ed8;}
  
 /* ── TABLA CATÁLOGO ── */
-.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1e3a5c;}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1.5px solid #cbd5e1;box-shadow:0 2px 6px rgba(13,33,55,.07);}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{background:#1a3a5c;color:#4ECCA3;text-transform:uppercase;font-size:10px;letter-spacing:1px;padding:12px 14px;text-align:left;white-space:nowrap;}
-tbody tr{border-bottom:1px solid #1a3a5c;transition:background .15s;}
-tbody tr:hover{background:#112236;}
-tbody td{padding:11px 14px;color:#c0d8e8;}
-tbody td.code{color:#4ECCA3;font-weight:700;font-family:monospace;}
+thead th{background:#0D2137;color:#4ECCA3;text-transform:uppercase;font-size:10px;letter-spacing:1px;padding:12px 14px;text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:background .15s;}
+tbody tr:hover{background:#f8fafc;}
+tbody td{padding:11px 14px;color:#334155;}
+tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;}
-.badge-ok{background:#0a1f15;color:#4ECCA3;border:1px solid #4ECCA3;}
-.badge-warn{background:#1f150a;color:#f59e0b;border:1px solid #f59e0b;}
+.badge-ok{background:#f0fdf4;color:#15803d;border:1px solid #86efac;}
+.badge-warn{background:#fffbeb;color:#92400e;border:1px solid #fcd34d;}
  
 /* ── HISTORIAL ── */
 .hist-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:220px;overflow-y:auto;}
-.hist-item{background:#0a1a2e;border:1px solid #1a3a5c;border-radius:8px;padding:10px 14px;font-size:12px;display:flex;gap:12px;align-items:flex-start;}
-.hist-campo{color:#4ECCA3;font-weight:700;min-width:120px;}
-.hist-vals{color:#c0d8e8;flex:1;}
-.hist-fecha{color:#4a6a8a;font-size:11px;white-space:nowrap;}
+.hist-item{background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:8px;padding:10px 14px;font-size:12px;display:flex;gap:12px;align-items:flex-start;}
+.hist-campo{color:#0D2137;font-weight:700;min-width:120px;}
+.hist-vals{color:#334155;flex:1;}
+.hist-fecha{color:#94a3b8;font-size:11px;white-space:nowrap;}
  
 /* ── SPINNER ── */
 .spinner{width:18px;height:18px;border:2px solid #1a3a5c;border-top-color:#4ECCA3;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;}
 @keyframes spin{to{transform:rotate(360deg);}}
  
 /* ── SEPARADOR ── */
-.divider{height:1px;background:#1a3a5c;margin:20px 0;}
+.divider{height:1px;background:#e2e8f0;margin:16px 0;}
  
 /* ── EMPTY STATE ── */
-.empty{text-align:center;padding:40px;color:#4a6a8a;}
+.empty{text-align:center;padding:40px;color:#94a3b8;}
 .empty-icon{font-size:36px;margin-bottom:10px;}
+
+@media(max-width:768px){
+  .header{padding:10px 14px;flex-wrap:wrap;gap:6px;}
+  .header-title{font-size:14px;}
+  .tabs{padding:0 8px;}
+  .tab{padding:9px 10px;font-size:11px;}
+  .page{padding:12px 10px;}
+  .form-grid{grid-template-columns:1fr!important;}
+  .dash-grid{grid-template-columns:1fr 1fr;}
+  .cat-layout{grid-template-columns:1fr!important;}
+  .btn-row{flex-direction:column;}
+  .btn{width:100%;text-align:center;}
+  table{font-size:11px;}
+  thead th{padding:8px 8px;font-size:9px;}
+  tbody td{padding:8px 8px;}
+}
+@media(max-width:480px){.dash-grid{grid-template-columns:1fr;}.header-sep{display:none;}}
 </style>
 </head>
 <body>
@@ -167,12 +184,12 @@ tbody td.code{color:#4ECCA3;font-weight:700;font-family:monospace;}
 <!-- ══════════════════════════════════════════ -->
 <div id="page-maxmin" class="page">
   <div class="section-title">Cálculo de Máximos y Mínimos de Picking</div>
- 
+
   <div class="form-card">
-    <div class="form-grid">
+    <div class="form-grid" style="margin-bottom:14px;">
       <div class="form-group">
         <label>Código de Artículo</label>
-        <input type="text" id="mm-codigo" placeholder="Ej: ART001" oninput="buscarArticuloMM()"/>
+        <input type="text" id="mm-codigo" placeholder="Ej: ART001" oninput="buscarArticuloMM()" style="border-color:#0D2137;font-weight:700;"/>
       </div>
       <div class="form-group">
         <label>Descripción</label>
@@ -186,42 +203,112 @@ tbody td.code{color:#4ECCA3;font-weight:700;font-family:monospace;}
         <label>Costo Unitario (₡)</label>
         <input type="number" id="mm-costo" readonly placeholder="—"/>
       </div>
-      <div class="form-group">
+    </div>
+
+    <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <div class="form-group" style="min-width:180px;flex:1;">
         <label>Caja Máster (uds/caja)</label>
-        <input type="number" id="mm-caja" placeholder="Ej: 24" min="1" oninput="calcularMM()"/>
+        <input type="text" id="mm-caja" readonly placeholder="—" style="cursor:default;"/>
       </div>
-      <div class="form-group">
-        <label>Días Máximo</label>
-        <input type="number" id="mm-dias-max" placeholder="Ej: 30" min="1" oninput="calcularMM()"/>
+      <div id="mm-caja-nueva-wrap" style="display:none;flex:1;min-width:160px;">
+        <label style="font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;display:block;margin-bottom:5px;">Unidades por caja</label>
+        <input type="number" id="mm-caja-nueva" placeholder="Ej: 24" min="1" oninput="onCajaNuevaInput()" style="width:100%;background:#fff;border:2px solid #f59e0b;border-radius:8px;padding:10px 14px;color:#0D2137;font-size:14px;font-weight:700;outline:none;"/>
       </div>
-      <div class="form-group">
-        <label>Días Mínimo</label>
-        <input type="number" id="mm-dias-min" placeholder="Ej: 7" min="1" oninput="calcularMM()"/>
+      <button id="mm-btn-registrar" onclick="registrarPresentacionForm()" style="display:none;padding:10px 16px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;height:42px;">💾 Registrar Presentación</button>
+      <div id="mm-presentacion-lectura" style="display:none;padding:9px 14px;background:#0D2137;border-radius:8px;font-size:12px;color:#4ECCA3;font-weight:700;white-space:nowrap;height:42px;align-items:center;">✅ Registrada en catálogo</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <label style="font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;display:block;margin-bottom:8px;">Días Máximo <span id="mm-label-max" style="color:#1D9E75;"></span></label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="cambiarCajasMax(-1)" style="width:34px;height:42px;background:#f1f5f9;border:1.5px solid #94a3b8;border-radius:8px;font-size:20px;font-weight:700;cursor:pointer;color:#334155;flex-shrink:0;">−</button>
+          <div style="flex:1;background:#f0fdf4;border:2px solid #1D9E75;border-radius:8px;padding:6px 10px;text-align:center;">
+            <div style="font-size:16px;font-weight:700;color:#085041;" id="mm-dias-max-display">—</div>
+            <div style="font-size:10px;color:#1D9E75;font-weight:600;" id="mm-cajas-max-display">sin presentación</div>
+          </div>
+          <button onclick="cambiarCajasMax(+1)" style="width:34px;height:42px;background:#f0fdf4;border:2px solid #1D9E75;border-radius:8px;font-size:20px;font-weight:700;cursor:pointer;color:#1D9E75;flex-shrink:0;">+</button>
+        </div>
+        <input type="hidden" id="mm-dias-max" value="0"/>
+      </div>
+      <div>
+        <label style="font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;display:block;margin-bottom:8px;">Días Mínimo <span id="mm-label-min" style="color:#BA7517;"></span></label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="cambiarCajasMin(-1)" style="width:34px;height:42px;background:#f1f5f9;border:1.5px solid #94a3b8;border-radius:8px;font-size:20px;font-weight:700;cursor:pointer;color:#334155;flex-shrink:0;">−</button>
+          <div style="flex:1;background:#fffbeb;border:2px solid #BA7517;border-radius:8px;padding:6px 10px;text-align:center;">
+            <div style="font-size:16px;font-weight:700;color:#633806;" id="mm-dias-min-display">—</div>
+            <div style="font-size:10px;color:#BA7517;font-weight:600;" id="mm-cajas-min-display">sin presentación</div>
+          </div>
+          <button onclick="cambiarCajasMin(+1)" style="width:34px;height:42px;background:#fffbeb;border:2px solid #BA7517;border-radius:8px;font-size:20px;font-weight:700;cursor:pointer;color:#BA7517;flex-shrink:0;">+</button>
+        </div>
+        <input type="hidden" id="mm-dias-min" value="0"/>
       </div>
     </div>
-    <div id="mm-alert-codigo" class="alert alert-error"></div>
+
+    <div id="mm-alert-codigo" class="alert alert-error" style="margin-top:12px;"></div>
   </div>
- 
-  <div id="mm-resultado" style="display:none;">
-    <div class="result-card">
-      <div style="font-size:12px;color:#4ECCA3;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Resultados</div>
-      <div class="result-grid">
-        <div class="result-item"><label>Consumo Diario</label><div class="val" id="mm-r-consumo">—</div><div style="font-size:11px;color:#4a6a8a;">unidades/día</div></div>
-        <div class="result-item" style="border-top:2px solid #4ECCA3;">
-          <label>Máximo Calculado</label><div class="val secondary" id="mm-r-max-calc">—</div>
-          <label style="margin-top:8px;">Máximo Ajustado</label><div class="val" id="mm-r-max-aj">—</div>
-          <label style="margin-top:8px;">Máximo en Cajas</label><div class="val secondary" id="mm-r-max-cajas">—</div>
-          <label style="margin-top:8px;">Valor Monetario</label><div class="val secondary" id="mm-r-max-val">—</div>
-        </div>
-        <div class="result-item" style="border-top:2px solid #f59e0b;">
-          <label>Mínimo Calculado</label><div class="val secondary" id="mm-r-min-calc">—</div>
-          <label style="margin-top:8px;">Mínimo Ajustado</label><div class="val" style="color:#f59e0b;" id="mm-r-min-aj">—</div>
-          <label style="margin-top:8px;">Mínimo en Cajas</label><div class="val secondary" id="mm-r-min-cajas">—</div>
-          <label style="margin-top:8px;">Valor Monetario</label><div class="val secondary" id="mm-r-min-val">—</div>
-        </div>
+
+  <div id="mm-resultado" style="margin-top:16px;">
+    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);margin-bottom:12px;">
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:480px;">
+          <thead>
+            <tr style="background:#0D2137;">
+              <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:left;position:sticky;left:0;background:#0D2137;z-index:2;min-width:150px;">Concepto</th>
+              <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Calculado</th>
+              <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Ajustado</th>
+              <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Cajas</th>
+              <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Valor ₡</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1.5px solid #f1f5f9;">
+              <td style="padding:14px 16px;position:sticky;left:0;background:#fff;z-index:1;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:6px;height:32px;background:#1D9E75;border-radius:2px;flex-shrink:0;"></div>
+                  <div>
+                    <div style="font-size:14px;font-weight:700;color:#0D2137;">Máximo</div>
+                    <div style="font-size:10px;color:#94a3b8;" id="mm-r-max-dias">— días</div>
+                  </div>
+                </div>
+              </td>
+              <td style="padding:14px 16px;text-align:right;font-size:13px;color:#94a3b8;" id="mm-r-max-calc">—</td>
+              <td style="padding:14px 16px;text-align:right;font-size:24px;font-weight:700;color:#085041;" id="mm-r-max-aj">—</td>
+              <td style="padding:14px 16px;text-align:right;font-size:13px;color:#475569;" id="mm-r-max-cajas">—</td>
+              <td style="padding:14px 16px;text-align:right;font-size:13px;font-weight:700;color:#085041;" id="mm-r-max-val">—</td>
+            </tr>
+            <tr>
+              <td style="padding:14px 16px;position:sticky;left:0;background:#fff;z-index:1;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:6px;height:32px;background:#BA7517;border-radius:2px;flex-shrink:0;"></div>
+                  <div>
+                    <div style="font-size:14px;font-weight:700;color:#0D2137;">Mínimo</div>
+                    <div style="font-size:10px;color:#94a3b8;" id="mm-r-min-dias">— días</div>
+                  </div>
+                </div>
+              </td>
+              <td style="padding:14px 16px;text-align:right;font-size:13px;color:#94a3b8;" id="mm-r-min-calc">—</td>
+              <td style="padding:14px 16px;text-align:right;font-size:24px;font-weight:700;color:#633806;" id="mm-r-min-aj">—</td>
+              <td style="padding:14px 16px;text-align:right;font-size:13px;color:#475569;" id="mm-r-min-cajas">—</td>
+              <td style="padding:14px 16px;text-align:right;font-size:13px;font-weight:700;color:#633806;" id="mm-r-min-val">—</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="formula-box" id="mm-formula"></div>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:10px;padding:12px 16px;box-shadow:0 1px 3px rgba(13,33,55,.05);">
+        <div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:3px;">Consumo diario</div>
+        <div style="font-size:24px;font-weight:700;color:#0D2137;" id="mm-r-consumo">—</div>
+        <div style="font-size:11px;color:#94a3b8;">unidades / día</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:10px;padding:12px 16px;box-shadow:0 1px 3px rgba(13,33,55,.05);">
+        <div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:3px;">Presentación</div>
+        <div style="font-size:24px;font-weight:700;color:#0D2137;" id="mm-r-caja">—</div>
+        <div style="font-size:11px;color:#94a3b8;">unidades / caja</div>
+      </div>
+    </div>
+    <div style="background:#f8fafc;border-left:3px solid #1D9E75;border-radius:0 8px 8px 0;padding:11px 16px;font-size:12px;color:#475569;font-family:monospace;line-height:1.9;white-space:pre-wrap;" id="mm-formula">Ingrese un código de artículo para ver la fórmula.</div>
   </div>
 </div>
  
@@ -275,7 +362,7 @@ tbody td.code{color:#4ECCA3;font-weight:700;font-family:monospace;}
 <!-- TAB: CATÁLOGO                             -->
 <!-- ══════════════════════════════════════════ -->
 <div id="page-catalogo" class="page">
-  <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start;">
+  <div class="cat-layout" style="display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start;">
  
     <!-- FORMULARIO -->
     <div>
@@ -433,53 +520,216 @@ function getArticulo(codigo, cb) {
 // ═══════════════════════════════════════════════
 let mmArticulo = null;
 let mmTimer = null;
- 
+let mmCajasMax = 2;
+let mmCajasMin = 1;
+
+// Obtiene la caja máster efectiva: la registrada o la que el usuario escribió en el campo temporal
+function getCajaMaster() {
+  if (mmArticulo && mmArticulo.cajaMaster && mmArticulo.cajaMaster > 0) return mmArticulo.cajaMaster;
+  const temporal = parseInt(document.getElementById('mm-caja-nueva') ? document.getElementById('mm-caja-nueva').value : 0);
+  return temporal > 0 ? temporal : null;
+}
+
+function ajustarCaja(val, caja) {
+  if (val <= 0) return caja;
+  const resto = val % caja;
+  return resto === 0 ? val : val + (caja - resto);
+}
+
+function diasParaCajas(n, caja, cd) {
+  if (cd <= 0) return 0;
+  return Math.floor((n * caja) / cd);
+}
+
+function actualizarDisplayDias() {
+  const cm = getCajaMaster();
+  if (!mmArticulo || !cm) return;
+  const cd = mmArticulo.rotacionMensual / 30;
+  const dMax = diasParaCajas(mmCajasMax, cm, cd);
+  const dMin = diasParaCajas(mmCajasMin, cm, cd);
+  document.getElementById('mm-dias-max').value = dMax;
+  document.getElementById('mm-dias-min').value = dMin;
+  document.getElementById('mm-dias-max-display').textContent = dMax + ' días';
+  document.getElementById('mm-dias-min-display').textContent = dMin + ' días';
+  document.getElementById('mm-cajas-max-display').textContent = mmCajasMax + ' caja' + (mmCajasMax > 1 ? 's' : '');
+  document.getElementById('mm-cajas-min-display').textContent = mmCajasMin + ' caja' + (mmCajasMin > 1 ? 's' : '');
+  document.getElementById('mm-label-max').textContent = '= ' + mmCajasMax + ' caja' + (mmCajasMax > 1 ? 's' : '');
+  document.getElementById('mm-label-min').textContent = '= ' + mmCajasMin + ' caja' + (mmCajasMin > 1 ? 's' : '');
+  calcularMM();
+}
+
+function cambiarCajasMax(delta) {
+  if (!mmArticulo || !getCajaMaster()) return;
+  const nuevo = mmCajasMax + delta;
+  if (nuevo < 2 || nuevo <= mmCajasMin) return;
+  mmCajasMax = nuevo;
+  actualizarDisplayDias();
+}
+
+function cambiarCajasMin(delta) {
+  if (!mmArticulo || !getCajaMaster()) return;
+  const nuevo = mmCajasMin + delta;
+  if (nuevo < 1 || nuevo >= mmCajasMax) return;
+  mmCajasMin = nuevo;
+  actualizarDisplayDias();
+}
+
+function resetDisplayDias() {
+  document.getElementById('mm-dias-max-display').textContent = '—';
+  document.getElementById('mm-dias-min-display').textContent = '—';
+  document.getElementById('mm-cajas-max-display').textContent = 'sin presentación';
+  document.getElementById('mm-cajas-min-display').textContent = 'sin presentación';
+  document.getElementById('mm-label-max').textContent = '';
+  document.getElementById('mm-label-min').textContent = '';
+  document.getElementById('mm-dias-max').value = 0;
+  document.getElementById('mm-dias-min').value = 0;
+}
+
+function limpiarResultadosMM() {
+  ['mm-r-max-calc','mm-r-max-aj','mm-r-max-cajas','mm-r-max-val',
+   'mm-r-min-calc','mm-r-min-aj','mm-r-min-cajas','mm-r-min-val',
+   'mm-r-consumo','mm-r-caja'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '—';
+  });
+  const md = document.getElementById('mm-r-max-dias');
+  const nd = document.getElementById('mm-r-min-dias');
+  if (md) md.textContent = '— días';
+  if (nd) nd.textContent = '— días';
+  const f = document.getElementById('mm-formula');
+  if (f) f.textContent = 'Ingrese un código de artículo para ver la fórmula.';
+}
+
+function onCajaNuevaInput() {
+  // Cuando el usuario escribe en el campo temporal, activar los botones +/-
+  const cm = getCajaMaster();
+  if (cm && cm > 0 && mmArticulo) {
+    mmCajasMax = 2;
+    mmCajasMin = 1;
+    actualizarDisplayDias();
+  }
+}
+
 function buscarArticuloMM() {
   clearTimeout(mmTimer);
   const codigo = document.getElementById('mm-codigo').value.trim();
   hideAlert('mm-alert-codigo');
-  hideAlert('mm-alert-caja');
-  document.getElementById('mm-resultado').style.display = 'none';
-  ['mm-desc','mm-rotacion','mm-costo','mm-caja'].forEach(id => document.getElementById(id).value = '');
+  ['mm-desc','mm-rotacion','mm-costo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const elCaja = document.getElementById('mm-caja');
+  if (elCaja) { elCaja.value = ''; elCaja.style.cssText = ''; }
+  const elNueva = document.getElementById('mm-caja-nueva');
+  if (elNueva) elNueva.value = '';
+  const elBtn = document.getElementById('mm-btn-registrar');
+  if (elBtn) elBtn.style.display = 'none';
+  const elLec = document.getElementById('mm-presentacion-lectura');
+  if (elLec) elLec.style.display = 'none';
+  const elWrap = document.getElementById('mm-caja-nueva-wrap');
+  if (elWrap) elWrap.style.display = 'none';
+  resetDisplayDias();
+  limpiarResultadosMM();
   mmArticulo = null;
+  mmCajasMax = 2;
+  mmCajasMin = 1;
   if (!codigo) return;
   mmTimer = setTimeout(() => {
     getArticulo(codigo, art => {
-      if (!art) {
-        showAlert('mm-alert-codigo', '❌ Código no encontrado en catálogo.', 'error');
-        return;
-      }
+      if (!art) { showAlert('mm-alert-codigo', '❌ Código no encontrado en catálogo.', 'error'); return; }
       mmArticulo = art;
       document.getElementById('mm-desc').value = art.descripcion;
       document.getElementById('mm-rotacion').value = art.rotacionMensual;
       document.getElementById('mm-costo').value = art.costoUnitario;
-      document.getElementById('mm-caja').value = art.cajaMaster !== null && art.cajaMaster !== undefined ? art.cajaMaster : '';
-      calcularMM();
+      const tieneCaja = art.cajaMaster !== null && art.cajaMaster !== undefined && art.cajaMaster > 0;
+      if (tieneCaja) {
+        if (elCaja) {
+          elCaja.value = art.cajaMaster + ' uds/caja';
+          elCaja.style.background = '#f0fdf4';
+          elCaja.style.borderColor = '#4ECCA3';
+          elCaja.style.color = '#085041';
+          elCaja.style.fontWeight = '700';
+        }
+        if (elLec) elLec.style.display = 'flex';
+        if (elBtn) elBtn.style.display = 'none';
+        if (elWrap) elWrap.style.display = 'none';
+        mmCajasMax = 2; mmCajasMin = 1;
+        actualizarDisplayDias();
+      } else {
+        if (elCaja) {
+          elCaja.value = '';
+          elCaja.placeholder = 'Sin presentación registrada';
+          elCaja.style.background = '#fffbeb';
+          elCaja.style.borderColor = '#f59e0b';
+          elCaja.style.color = '#92400e';
+        }
+        if (elBtn) elBtn.style.display = 'inline-block';
+        if (elWrap) elWrap.style.display = 'flex';
+        if (elLec) elLec.style.display = 'none';
+      }
     });
   }, 400);
 }
- 
-function calcularMM() {
+
+function registrarPresentacionForm() {
   if (!mmArticulo) return;
-  const cajaMaster = parseInt(document.getElementById('mm-caja').value);
-  const diasMax = parseInt(document.getElementById('mm-dias-max').value);
-  const diasMin = parseInt(document.getElementById('mm-dias-min').value);
-  if (!cajaMaster || cajaMaster <= 0 || !diasMax || !diasMin || diasMax <= 0 || diasMin <= 0) {
-    document.getElementById('mm-resultado').style.display = 'none';
-    return;
-  }
-  const r = calcularMaxMin(mmArticulo.rotacionMensual, cajaMaster, mmArticulo.costoUnitario, diasMax, diasMin);
-  document.getElementById('mm-r-consumo').textContent = r.consumoDiario.toFixed(2);
-  document.getElementById('mm-r-max-calc').textContent = fmt(r.maxCalc.toFixed(2)) + ' uds';
-  document.getElementById('mm-r-max-aj').textContent = fmt(r.maxAj) + ' uds';
-  document.getElementById('mm-r-max-cajas').textContent = fmt(r.maxCajas) + ' cajas';
-  document.getElementById('mm-r-max-val').textContent = fmtMon(r.valMax);
-  document.getElementById('mm-r-min-calc').textContent = fmt(r.minCalc.toFixed(2)) + ' uds';
-  document.getElementById('mm-r-min-aj').textContent = fmt(r.minAj) + ' uds';
-  document.getElementById('mm-r-min-cajas').textContent = fmt(r.minCajas) + ' cajas';
-  document.getElementById('mm-r-min-val').textContent = fmtMon(r.valMin);
-  document.getElementById('mm-formula').textContent = r.formula;
-  document.getElementById('mm-resultado').style.display = 'block';
+  const elNueva = document.getElementById('mm-caja-nueva');
+  const caja = elNueva ? parseInt(elNueva.value) : 0;
+  if (!caja || caja <= 0) { showAlert('mm-alert-codigo', '⚠️ Ingrese las unidades por caja antes de registrar.', 'warn'); return; }
+  const ahora = Date.now();
+  db.ref('inventarioConfig/' + mmArticulo.codigo + '/historialCambios').push({ campo:'cajaMaster', valorAnterior:null, valorNuevo:caja, fecha:ahora });
+  db.ref('inventarioConfig/' + mmArticulo.codigo).update({ cajaMaster:caja, fechaActualizacion:ahora }).then(() => {
+    mmArticulo.cajaMaster = caja;
+    const elCaja = document.getElementById('mm-caja');
+    if (elCaja) {
+      elCaja.value = caja + ' uds/caja';
+      elCaja.style.background = '#f0fdf4';
+      elCaja.style.borderColor = '#4ECCA3';
+      elCaja.style.color = '#085041';
+      elCaja.style.fontWeight = '700';
+    }
+    const elBtn = document.getElementById('mm-btn-registrar');
+    if (elBtn) elBtn.style.display = 'none';
+    const elWrap = document.getElementById('mm-caja-nueva-wrap');
+    if (elWrap) elWrap.style.display = 'none';
+    const elLec = document.getElementById('mm-presentacion-lectura');
+    if (elLec) elLec.style.display = 'flex';
+    hideAlert('mm-alert-codigo');
+    mmCajasMax = 2; mmCajasMin = 1;
+    actualizarDisplayDias();
+  });
+}
+
+function calcularMM() {
+  const cm = getCajaMaster();
+  if (!mmArticulo || !cm || cm <= 0) { limpiarResultadosMM(); return; }
+  const dMax = parseInt(document.getElementById('mm-dias-max').value);
+  const dMin = parseInt(document.getElementById('mm-dias-min').value);
+  if (!dMax || !dMin || dMax <= 0 || dMin <= 0) { limpiarResultadosMM(); return; }
+  const cd = mmArticulo.rotacionMensual / 30;
+  const costo = mmArticulo.costoUnitario;
+  const maxCalc = cd * dMax;
+  const minCalc = cd * dMin;
+  const maxAj = ajustarCaja(Math.ceil(maxCalc), cm);
+  const minAj = ajustarCaja(Math.ceil(minCalc), cm);
+  const maxCajas = maxAj / cm;
+  const minCajas = minAj / cm;
+  document.getElementById('mm-r-consumo').textContent = cd.toFixed(2);
+  document.getElementById('mm-r-caja').textContent = fmt(cm);
+  document.getElementById('mm-r-max-dias').textContent = dMax + ' días de inventario';
+  document.getElementById('mm-r-min-dias').textContent = dMin + ' días de inventario';
+  document.getElementById('mm-r-max-calc').textContent = fmt(maxCalc.toFixed(2));
+  document.getElementById('mm-r-max-aj').textContent = fmt(maxAj);
+  document.getElementById('mm-r-max-cajas').textContent = fmt(maxCajas) + ' cajas';
+  document.getElementById('mm-r-max-val').textContent = fmtMon(maxAj * costo);
+  document.getElementById('mm-r-min-calc').textContent = fmt(minCalc.toFixed(2));
+  document.getElementById('mm-r-min-aj').textContent = fmt(minAj);
+  document.getElementById('mm-r-min-cajas').textContent = fmt(minCajas) + ' cajas';
+  document.getElementById('mm-r-min-val').textContent = fmtMon(minAj * costo);
+  const l1 = 'Consumo diario  = ' + mmArticulo.rotacionMensual + ' / 30 = ' + cd.toFixed(4) + ' u/dia';
+  const l2 = 'Maximo calculado = ' + cd.toFixed(4) + ' x ' + dMax + ' = ' + maxCalc.toFixed(4) + ' -> ajustado a ' + maxAj + ' (' + maxCajas + ' cajas)';
+  const l3 = 'Minimo calculado = ' + cd.toFixed(4) + ' x ' + dMin + ' = ' + minCalc.toFixed(4) + ' -> ajustado a ' + minAj + ' (' + minCajas + ' cajas)';
+  document.getElementById('mm-formula').textContent = l1 + '\n' + l2 + '\n' + l3;
 }
  
 // ═══════════════════════════════════════════════
@@ -705,7 +955,7 @@ function cargarCatalogo() {
  
     // Actividad reciente (últimos 5)
     dashRec.innerHTML = arts.slice(0,5).map(a => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a3a5c;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
         <div><span style="color:#4ECCA3;font-family:monospace;font-weight:700;">${a.codigo}</span> <span style="color:#c0d8e8;margin-left:8px;">${a.descripcion}</span></div>
         <div style="font-size:11px;color:#4a6a8a;">${fmtFecha(a.fechaActualizacion)}</div>
       </div>`).join('');
