@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AEL MÓDULOS — Configuración de Inventario</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0D2137;color:#e0e0e0;min-height:100vh;}
+ 
+/* ── HEADER ── */
+.header{background:linear-gradient(135deg,#0D2137 0%,#1a3a5c 100%);border-bottom:2px solid #4ECCA3;padding:14px 24px;display:flex;align-items:center;gap:16px;}
+.header-brand{font-size:11px;font-weight:700;color:#4ECCA3;letter-spacing:2px;text-transform:uppercase;}
+.header-title{font-size:18px;font-weight:600;color:#fff;}
+.header-sep{width:1px;height:28px;background:#4ECCA3;opacity:.4;}
+ 
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:2px solid #1a3a5c;padding:0 24px;background:#0D2137;}
+.tab{padding:13px 22px;font-size:13px;font-weight:600;color:#7a9bb5;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;letter-spacing:.3px;white-space:nowrap;}
+.tab:hover{color:#c0d8e8;}
+.tab.active{color:#4ECCA3;border-bottom-color:#4ECCA3;}
+ 
+/* ── LAYOUT ── */
+.page{display:none;padding:28px 24px;max-width:1100px;margin:0 auto;}
+.page.active{display:block;}
+ 
+/* ── DASHBOARD CARDS ── */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:28px;}
+.dash-card{background:#112236;border:1px solid #1e3a5c;border-radius:12px;padding:22px 24px;position:relative;overflow:hidden;}
+.dash-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#4ECCA3;}
+.dash-card.warn::before{background:#f59e0b;}
+.dash-card.info::before{background:#3b82f6;}
+.dash-card.muted::before{background:#6b7280;}
+.dash-label{font-size:11px;color:#7a9bb5;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.dash-value{font-size:32px;font-weight:700;color:#fff;line-height:1;}
+.dash-sub{font-size:11px;color:#4ECCA3;margin-top:6px;}
+ 
+/* ── SECTION TITLE ── */
+.section-title{font-size:13px;font-weight:700;color:#4ECCA3;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:18px;padding-bottom:8px;border-bottom:1px solid #1a3a5c;}
+ 
+/* ── FORM CARD ── */
+.form-card{background:#112236;border:1px solid #1e3a5c;border-radius:12px;padding:24px;margin-bottom:20px;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group label{font-size:11px;color:#7a9bb5;text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
+.form-group input{background:#0D2137;border:1px solid #1e3a5c;border-radius:8px;padding:10px 14px;color:#e0e0e0;font-size:14px;outline:none;transition:border-color .2s;}
+.form-group input:focus{border-color:#4ECCA3;}
+.form-group input[readonly]{color:#7a9bb5;cursor:default;}
+.form-group input.error{border-color:#ef4444;}
+ 
+/* ── BOTONES ── */
+.btn{padding:10px 20px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.btn-primary{background:#4ECCA3;color:#0D2137;}
+.btn-primary:hover{background:#3ab88d;}
+.btn-secondary{background:#1a3a5c;color:#c0d8e8;border:1px solid #1e3a5c;}
+.btn-secondary:hover{background:#1e3a5c;}
+.btn-danger{background:#ef4444;color:#fff;}
+.btn-danger:hover{background:#dc2626;}
+.btn-warning{background:#f59e0b;color:#0D2137;}
+.btn-warning:hover{background:#d97706;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+ 
+/* ── RESULTADOS ── */
+.result-card{background:#0a1a2e;border:1px solid #4ECCA3;border-radius:12px;padding:22px;margin-top:20px;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px;}
+.result-item{background:#112236;border-radius:8px;padding:14px;}
+.result-item label{font-size:10px;color:#7a9bb5;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:4px;}
+.result-item .val{font-size:20px;font-weight:700;color:#4ECCA3;}
+.result-item .val.secondary{color:#e0e0e0;font-size:16px;}
+.formula-box{background:#0D2137;border:1px solid #1a3a5c;border-radius:8px;padding:14px;font-size:12px;color:#7a9bb5;line-height:1.8;font-family:monospace;white-space:pre-wrap;}
+ 
+/* ── ALERTAS ── */
+.alert{border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px;display:none;}
+.alert.show{display:block;}
+.alert-error{background:#1f0a0a;border:1px solid #ef4444;color:#fca5a5;}
+.alert-warn{background:#1f150a;border:1px solid #f59e0b;color:#fcd34d;}
+.alert-success{background:#0a1f15;border:1px solid #4ECCA3;color:#6ee7b7;}
+.alert-info{background:#0a0f1f;border:1px solid #3b82f6;color:#93c5fd;}
+ 
+/* ── TABLA CATÁLOGO ── */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1e3a5c;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:#1a3a5c;color:#4ECCA3;text-transform:uppercase;font-size:10px;letter-spacing:1px;padding:12px 14px;text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #1a3a5c;transition:background .15s;}
+tbody tr:hover{background:#112236;}
+tbody td{padding:11px 14px;color:#c0d8e8;}
+tbody td.code{color:#4ECCA3;font-weight:700;font-family:monospace;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;}
+.badge-ok{background:#0a1f15;color:#4ECCA3;border:1px solid #4ECCA3;}
+.badge-warn{background:#1f150a;color:#f59e0b;border:1px solid #f59e0b;}
+ 
+/* ── HISTORIAL ── */
+.hist-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:220px;overflow-y:auto;}
+.hist-item{background:#0a1a2e;border:1px solid #1a3a5c;border-radius:8px;padding:10px 14px;font-size:12px;display:flex;gap:12px;align-items:flex-start;}
+.hist-campo{color:#4ECCA3;font-weight:700;min-width:120px;}
+.hist-vals{color:#c0d8e8;flex:1;}
+.hist-fecha{color:#4a6a8a;font-size:11px;white-space:nowrap;}
+ 
+/* ── SPINNER ── */
+.spinner{width:18px;height:18px;border:2px solid #1a3a5c;border-top-color:#4ECCA3;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+ 
+/* ── SEPARADOR ── */
+.divider{height:1px;background:#1a3a5c;margin:20px 0;}
+ 
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px;color:#4a6a8a;}
+.empty-icon{font-size:36px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+ 
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-brand">AEL MÓDULOS</div>
+    <div class="header-title">Configuración de Inventario</div>
+  </div>
+  <div class="header-sep"></div>
+  <div style="font-size:12px;color:#4a6a8a;">Consultas / Configuración Inventario</div>
+</div>
+ 
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('dashboard')">Dashboard</div>
+  <div class="tab" onclick="showTab('maxmin')">Máximos y Mínimos</div>
+  <div class="tab" onclick="showTab('cobertura')">Cobertura de Inventario</div>
+  <div class="tab" onclick="showTab('catalogo')">Catálogo de Productos</div>
+</div>
+ 
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB: DASHBOARD                            -->
+<!-- ══════════════════════════════════════════ -->
+<div id="page-dashboard" class="page active">
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="dash-label">Total Artículos</div>
+      <div class="dash-value" id="dash-total">—</div>
+      <div class="dash-sub">en catálogo</div>
+    </div>
+    <div class="dash-card info">
+      <div class="dash-label">Con Caja Máster</div>
+      <div class="dash-value" id="dash-con">—</div>
+      <div class="dash-sub">listos para cálculo</div>
+    </div>
+    <div class="dash-card warn">
+      <div class="dash-label">Sin Caja Máster</div>
+      <div class="dash-value" id="dash-sin">—</div>
+      <div class="dash-sub">requieren configuración</div>
+    </div>
+    <div class="dash-card muted">
+      <div class="dash-label">Última Actualización</div>
+      <div class="dash-value" id="dash-fecha" style="font-size:15px;margin-top:4px;">—</div>
+      <div class="dash-sub">registro más reciente</div>
+    </div>
+  </div>
+  <div class="section-title">Actividad reciente</div>
+  <div class="form-card" id="dash-recientes">
+    <div class="empty"><div class="empty-icon">📦</div>No hay artículos registrados aún.</div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB: MÁXIMOS Y MÍNIMOS                   -->
+<!-- ══════════════════════════════════════════ -->
+<div id="page-maxmin" class="page">
+  <div class="section-title">Cálculo de Máximos y Mínimos de Picking</div>
+ 
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Código de Artículo</label>
+        <input type="text" id="mm-codigo" placeholder="Ej: ART001" oninput="buscarArticuloMM()"/>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <input type="text" id="mm-desc" readonly placeholder="Se carga automáticamente"/>
+      </div>
+      <div class="form-group">
+        <label>Rotación Mensual (uds)</label>
+        <input type="number" id="mm-rotacion" readonly placeholder="—"/>
+      </div>
+      <div class="form-group">
+        <label>Costo Unitario (₡)</label>
+        <input type="number" id="mm-costo" readonly placeholder="—"/>
+      </div>
+      <div class="form-group">
+        <label>Caja Máster (uds/caja)</label>
+        <input type="number" id="mm-caja" readonly placeholder="—"/>
+      </div>
+      <div class="form-group">
+        <label>Días Máximo</label>
+        <input type="number" id="mm-dias-max" placeholder="Ej: 30" min="1" oninput="calcularMM()"/>
+      </div>
+      <div class="form-group">
+        <label>Días Mínimo</label>
+        <input type="number" id="mm-dias-min" placeholder="Ej: 7" min="1" oninput="calcularMM()"/>
+      </div>
+    </div>
+    <div id="mm-alert-codigo" class="alert alert-error"></div>
+    <div id="mm-alert-caja" class="alert alert-warn"></div>
+  </div>
+ 
+  <div id="mm-resultado" style="display:none;">
+    <div class="result-card">
+      <div style="font-size:12px;color:#4ECCA3;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Resultados</div>
+      <div class="result-grid">
+        <div class="result-item"><label>Consumo Diario</label><div class="val" id="mm-r-consumo">—</div><div style="font-size:11px;color:#4a6a8a;">unidades/día</div></div>
+        <div class="result-item" style="border-top:2px solid #4ECCA3;">
+          <label>Máximo Calculado</label><div class="val secondary" id="mm-r-max-calc">—</div>
+          <label style="margin-top:8px;">Máximo Ajustado</label><div class="val" id="mm-r-max-aj">—</div>
+          <label style="margin-top:8px;">Máximo en Cajas</label><div class="val secondary" id="mm-r-max-cajas">—</div>
+          <label style="margin-top:8px;">Valor Monetario</label><div class="val secondary" id="mm-r-max-val">—</div>
+        </div>
+        <div class="result-item" style="border-top:2px solid #f59e0b;">
+          <label>Mínimo Calculado</label><div class="val secondary" id="mm-r-min-calc">—</div>
+          <label style="margin-top:8px;">Mínimo Ajustado</label><div class="val" style="color:#f59e0b;" id="mm-r-min-aj">—</div>
+          <label style="margin-top:8px;">Mínimo en Cajas</label><div class="val secondary" id="mm-r-min-cajas">—</div>
+          <label style="margin-top:8px;">Valor Monetario</label><div class="val secondary" id="mm-r-min-val">—</div>
+        </div>
+      </div>
+      <div class="formula-box" id="mm-formula"></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB: COBERTURA                            -->
+<!-- ══════════════════════════════════════════ -->
+<div id="page-cobertura" class="page">
+  <div class="section-title">Cobertura de Inventario</div>
+ 
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Código de Artículo</label>
+        <input type="text" id="cob-codigo" placeholder="Ej: ART001" oninput="buscarArticuloCob()"/>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <input type="text" id="cob-desc" readonly placeholder="Se carga automáticamente"/>
+      </div>
+      <div class="form-group">
+        <label>Rotación Mensual (uds)</label>
+        <input type="number" id="cob-rotacion" readonly placeholder="—"/>
+      </div>
+      <div class="form-group">
+        <label>Costo Unitario (₡)</label>
+        <input type="number" id="cob-costo" readonly placeholder="—"/>
+      </div>
+      <div class="form-group">
+        <label>Saldo Actual (uds)</label>
+        <input type="number" id="cob-saldo" placeholder="Ej: 240" min="0" oninput="calcularCob()"/>
+      </div>
+    </div>
+    <div id="cob-alert-codigo" class="alert alert-error"></div>
+  </div>
+ 
+  <div id="cob-resultado" style="display:none;">
+    <div class="result-card">
+      <div style="font-size:12px;color:#4ECCA3;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Resultados de Cobertura</div>
+      <div class="result-grid">
+        <div class="result-item"><label>Consumo Diario</label><div class="val" id="cob-r-consumo">—</div><div style="font-size:11px;color:#4a6a8a;">unidades/día</div></div>
+        <div class="result-item"><label>Días de Cobertura</label><div class="val" id="cob-r-dias">—</div></div>
+        <div class="result-item"><label>Meses de Cobertura</label><div class="val secondary" id="cob-r-meses">—</div></div>
+        <div class="result-item"><label>Valor del Inventario</label><div class="val secondary" id="cob-r-valor">—</div></div>
+      </div>
+      <div id="cob-indefinida" class="alert alert-info" style="margin-top:0;">⚠️ Cobertura indefinida: la rotación mensual es 0, por lo que no se puede calcular el consumo diario.</div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB: CATÁLOGO                             -->
+<!-- ══════════════════════════════════════════ -->
+<div id="page-catalogo" class="page">
+  <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start;">
+ 
+    <!-- FORMULARIO -->
+    <div>
+      <div class="section-title">Formulario</div>
+      <div class="form-card">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Código de Artículo</label>
+          <input type="text" id="cat-codigo" placeholder="Ej: ART001" style="text-transform:uppercase;"/>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Descripción</label>
+          <input type="text" id="cat-desc" placeholder="Nombre del artículo"/>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Rotación Mensual (uds)</label>
+          <input type="number" id="cat-rotacion" placeholder="0" min="0"/>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Costo Unitario (₡)</label>
+          <input type="number" id="cat-costo" placeholder="0.00" min="0" step="0.01"/>
+        </div>
+        <div class="form-group" style="margin-bottom:6px;">
+          <label>Caja Máster (uds/caja)</label>
+          <input type="number" id="cat-caja" placeholder="0" min="1"/>
+        </div>
+ 
+        <div id="cat-alert" class="alert" style="margin-top:12px;"></div>
+ 
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="buscarArticuloCat()">🔍 Buscar</button>
+          <button class="btn btn-primary" onclick="guardarArticulo()">💾 Guardar</button>
+          <button class="btn btn-secondary" onclick="limpiarCat()">✕ Limpiar</button>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-warning" onclick="eliminarCajaMaster()" style="width:100%;">⚠️ Eliminar Caja Máster</button>
+      </div>
+ 
+      <!-- HISTORIAL -->
+      <div id="cat-historial-wrap" style="display:none;">
+        <div class="section-title">Historial de Cambios</div>
+        <div class="form-card" style="padding:14px;">
+          <ul class="hist-list" id="cat-historial"></ul>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- TABLA -->
+    <div>
+      <div class="section-title">Artículos registrados <span id="cat-count" style="color:#4a6a8a;font-size:11px;"></span></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descripción</th>
+              <th>Rotación/mes</th>
+              <th>Costo Unit.</th>
+              <th>Caja Máster</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cat-tbody">
+            <tr><td colspan="7"><div class="empty"><div class="empty-icon">📦</div>Sin artículos registrados.</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════ FIREBASE + LÓGICA ══════════ -->
+<script>
+// ── FIREBASE INIT ──
+const firebaseConfig = {
+  apiKey: "AIzaSyBbPQnG5h7zWIS284c1Epfplyf1W0tQOro",
+  authDomain: "inventario-config-mayoreo.firebaseapp.com",
+  databaseURL: "https://inventario-config-mayoreo-default-rtdb.firebaseio.com",
+  projectId: "inventario-config-mayoreo",
+  storageBucket: "inventario-config-mayoreo.firebasestorage.app",
+  messagingSenderId: "1038871465798",
+  appId: "1:1038871465798:web:826d9b27016c2ef9011f47"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+ 
+// ── TABS ──
+function showTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+ 
+// ── UTILS ──
+function fmt(n) { return Number(n).toLocaleString('es-CR'); }
+function fmtMon(n) { return '₡' + Number(n).toLocaleString('es-CR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtFecha(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleDateString('es-CR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'America/Costa_Rica'});
+}
+function showAlert(id, msg, tipo) {
+  const el = document.getElementById(id);
+  el.className = 'alert alert-' + tipo + ' show';
+  el.textContent = msg;
+}
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  el.className = 'alert';
+  el.textContent = '';
+}
+ 
+// ── CÁLCULOS INVENTARIO ──
+function ajustarMultiplo(valorEntero, cajaMaster) {
+  const resto = valorEntero % cajaMaster;
+  if (resto === 0) return valorEntero;
+  return valorEntero + (cajaMaster - resto);
+}
+function calcularMaxMin(rotacion, cajaMaster, costo, diasMax, diasMin) {
+  const consumoDiario = rotacion / 30;
+  const maxCalc = consumoDiario * diasMax;
+  const maxAj = ajustarMultiplo(Math.ceil(maxCalc), cajaMaster);
+  const minCalc = consumoDiario * diasMin;
+  const minAj = ajustarMultiplo(Math.ceil(minCalc), cajaMaster);
+  return {
+    consumoDiario,
+    maxCalc, maxAj, maxCajas: maxAj / cajaMaster, valMax: maxAj * costo,
+    minCalc, minAj, minCajas: minAj / cajaMaster, valMin: minAj * costo,
+    formula:
+      `Consumo diario  = ${rotacion} / 30 = ${consumoDiario.toFixed(4)} u/día\n` +
+      `Máximo calculado = ${consumoDiario.toFixed(4)} × ${diasMax} = ${maxCalc.toFixed(4)} uds\n` +
+      `Máximo ajustado  = ${maxAj} uds (múltiplo de ${cajaMaster}) = ${maxAj/cajaMaster} cajas\n` +
+      `Mínimo calculado = ${consumoDiario.toFixed(4)} × ${diasMin} = ${minCalc.toFixed(4)} uds\n` +
+      `Mínimo ajustado  = ${minAj} uds (múltiplo de ${cajaMaster}) = ${minAj/cajaMaster} cajas`
+  };
+}
+function calcularCoberturaFn(rotacion, saldo, costo) {
+  const consumoDiario = rotacion / 30;
+  const valorInventario = saldo * costo;
+  if (consumoDiario === 0) return { consumoDiario:0, diasCobertura:null, mesesCobertura:null, valorInventario, indefinida:true };
+  const diasCobertura = saldo / consumoDiario;
+  return { consumoDiario, diasCobertura, mesesCobertura: diasCobertura/30, valorInventario, indefinida:false };
+}
+ 
+// ── BÚSQUEDA ARTÍCULO HELPER ──
+function getArticulo(codigo, cb) {
+  db.ref('inventarioConfig/' + codigo.toUpperCase().trim()).once('value', snap => {
+    if (snap.exists()) cb(snap.val()); else cb(null);
+  });
+}
+ 
+// ═══════════════════════════════════════════════
+// TAB 1 — MÁXIMOS Y MÍNIMOS
+// ═══════════════════════════════════════════════
+let mmArticulo = null;
+let mmTimer = null;
+ 
+function buscarArticuloMM() {
+  clearTimeout(mmTimer);
+  const codigo = document.getElementById('mm-codigo').value.trim();
+  hideAlert('mm-alert-codigo');
+  hideAlert('mm-alert-caja');
+  document.getElementById('mm-resultado').style.display = 'none';
+  ['mm-desc','mm-rotacion','mm-costo','mm-caja'].forEach(id => document.getElementById(id).value = '');
+  mmArticulo = null;
+  if (!codigo) return;
+  mmTimer = setTimeout(() => {
+    getArticulo(codigo, art => {
+      if (!art) {
+        showAlert('mm-alert-codigo', '❌ Código no encontrado en catálogo.', 'error');
+        return;
+      }
+      mmArticulo = art;
+      document.getElementById('mm-desc').value = art.descripcion;
+      document.getElementById('mm-rotacion').value = art.rotacionMensual;
+      document.getElementById('mm-costo').value = art.costoUnitario;
+      document.getElementById('mm-caja').value = art.cajaMaster !== null && art.cajaMaster !== undefined ? art.cajaMaster : '';
+      if (!art.cajaMaster || art.cajaMaster <= 0) {
+        showAlert('mm-alert-caja', '⚠️ Este artículo no tiene caja máster asignada. No se puede calcular máximo ni mínimo hasta que se configure en el Catálogo.', 'warn');
+      } else {
+        calcularMM();
+      }
+    });
+  }, 400);
+}
+ 
+function calcularMM() {
+  if (!mmArticulo || !mmArticulo.cajaMaster || mmArticulo.cajaMaster <= 0) return;
+  const diasMax = parseInt(document.getElementById('mm-dias-max').value);
+  const diasMin = parseInt(document.getElementById('mm-dias-min').value);
+  if (!diasMax || !diasMin || diasMax <= 0 || diasMin <= 0) return;
+  const r = calcularMaxMin(mmArticulo.rotacionMensual, mmArticulo.cajaMaster, mmArticulo.costoUnitario, diasMax, diasMin);
+  document.getElementById('mm-r-consumo').textContent = r.consumoDiario.toFixed(2);
+  document.getElementById('mm-r-max-calc').textContent = fmt(r.maxCalc.toFixed(2)) + ' uds';
+  document.getElementById('mm-r-max-aj').textContent = fmt(r.maxAj) + ' uds';
+  document.getElementById('mm-r-max-cajas').textContent = fmt(r.maxCajas) + ' cajas';
+  document.getElementById('mm-r-max-val').textContent = fmtMon(r.valMax);
+  document.getElementById('mm-r-min-calc').textContent = fmt(r.minCalc.toFixed(2)) + ' uds';
+  document.getElementById('mm-r-min-aj').textContent = fmt(r.minAj) + ' uds';
+  document.getElementById('mm-r-min-cajas').textContent = fmt(r.minCajas) + ' cajas';
+  document.getElementById('mm-r-min-val').textContent = fmtMon(r.valMin);
+  document.getElementById('mm-formula').textContent = r.formula;
+  document.getElementById('mm-resultado').style.display = 'block';
+}
+ 
+// ═══════════════════════════════════════════════
+// TAB 2 — COBERTURA
+// ═══════════════════════════════════════════════
+let cobArticulo = null;
+let cobTimer = null;
+ 
+function buscarArticuloCob() {
+  clearTimeout(cobTimer);
+  const codigo = document.getElementById('cob-codigo').value.trim();
+  hideAlert('cob-alert-codigo');
+  document.getElementById('cob-resultado').style.display = 'none';
+  ['cob-desc','cob-rotacion','cob-costo'].forEach(id => document.getElementById(id).value = '');
+  cobArticulo = null;
+  if (!codigo) return;
+  cobTimer = setTimeout(() => {
+    getArticulo(codigo, art => {
+      if (!art) {
+        showAlert('cob-alert-codigo', '❌ Código no encontrado en catálogo.', 'error');
+        return;
+      }
+      cobArticulo = art;
+      document.getElementById('cob-desc').value = art.descripcion;
+      document.getElementById('cob-rotacion').value = art.rotacionMensual;
+      document.getElementById('cob-costo').value = art.costoUnitario;
+      calcularCob();
+    });
+  }, 400);
+}
+ 
+function calcularCob() {
+  if (!cobArticulo) return;
+  const saldo = parseFloat(document.getElementById('cob-saldo').value);
+  if (isNaN(saldo) || saldo < 0) return;
+  const r = calcularCoberturaFn(cobArticulo.rotacionMensual, saldo, cobArticulo.costoUnitario);
+  document.getElementById('cob-r-consumo').textContent = r.consumoDiario.toFixed(2);
+  if (r.indefinida) {
+    document.getElementById('cob-r-dias').textContent = '∞';
+    document.getElementById('cob-r-meses').textContent = '∞';
+    document.getElementById('cob-indefinida').classList.add('show');
+  } else {
+    document.getElementById('cob-r-dias').textContent = r.diasCobertura.toFixed(1) + ' días';
+    document.getElementById('cob-r-meses').textContent = r.mesesCobertura.toFixed(2) + ' meses';
+    document.getElementById('cob-indefinida').classList.remove('show');
+  }
+  document.getElementById('cob-r-valor').textContent = fmtMon(r.valorInventario);
+  document.getElementById('cob-resultado').style.display = 'block';
+}
+ 
+// ═══════════════════════════════════════════════
+// TAB 3 — CATÁLOGO
+// ═══════════════════════════════════════════════
+let catModoEdicion = false;
+let catCodigoActual = null;
+ 
+function limpiarCat() {
+  ['cat-codigo','cat-desc','cat-rotacion','cat-costo','cat-caja'].forEach(id => document.getElementById(id).value = '');
+  hideAlert('cat-alert');
+  document.getElementById('cat-historial-wrap').style.display = 'none';
+  document.getElementById('cat-codigo').removeAttribute('readonly');
+  catModoEdicion = false;
+  catCodigoActual = null;
+}
+ 
+function buscarArticuloCat() {
+  const codigo = document.getElementById('cat-codigo').value.trim().toUpperCase();
+  if (!codigo) { showAlert('cat-alert','Ingrese un código para buscar.','warn'); return; }
+  getArticulo(codigo, art => {
+    if (!art) { showAlert('cat-alert','Código no encontrado.','error'); return; }
+    hideAlert('cat-alert');
+    catModoEdicion = true;
+    catCodigoActual = codigo;
+    document.getElementById('cat-codigo').value = art.codigo;
+    document.getElementById('cat-codigo').setAttribute('readonly','');
+    document.getElementById('cat-desc').value = art.descripcion;
+    document.getElementById('cat-rotacion').value = art.rotacionMensual;
+    document.getElementById('cat-costo').value = art.costoUnitario;
+    document.getElementById('cat-caja').value = art.cajaMaster !== null && art.cajaMaster !== undefined ? art.cajaMaster : '';
+    renderHistorial(art.historialCambios);
+  });
+}
+ 
+function renderHistorial(hist) {
+  const wrap = document.getElementById('cat-historial-wrap');
+  const ul = document.getElementById('cat-historial');
+  if (!hist) { wrap.style.display = 'none'; return; }
+  const items = Object.values(hist).sort((a,b) => b.fecha - a.fecha);
+  ul.innerHTML = items.map(h => `
+    <li class="hist-item">
+      <span class="hist-campo">${h.campo}</span>
+      <span class="hist-vals">${h.valorAnterior ?? 'null'} → ${h.valorNuevo ?? 'null'}</span>
+      <span class="hist-fecha">${fmtFecha(h.fecha)}</span>
+    </li>`).join('');
+  wrap.style.display = 'block';
+}
+ 
+function guardarArticulo() {
+  const codigo = document.getElementById('cat-codigo').value.trim().toUpperCase();
+  const desc = document.getElementById('cat-desc').value.trim();
+  const rotacion = parseFloat(document.getElementById('cat-rotacion').value);
+  const costo = parseFloat(document.getElementById('cat-costo').value);
+  const cajaVal = document.getElementById('cat-caja').value.trim();
+  const caja = cajaVal === '' ? null : parseInt(cajaVal);
+ 
+  if (!codigo || !desc || isNaN(rotacion) || isNaN(costo)) {
+    showAlert('cat-alert','Complete todos los campos obligatorios (código, descripción, rotación y costo).','error'); return;
+  }
+  if (caja !== null && caja <= 0) {
+    showAlert('cat-alert','La caja máster debe ser mayor a 0. Si desea quitarla, use el botón "Eliminar Caja Máster".','warn'); return;
+  }
+ 
+  const ahora = Date.now();
+ 
+  if (catModoEdicion) {
+    // Actualizar artículo existente
+    db.ref('inventarioConfig/' + catCodigoActual).once('value', snap => {
+      const actual = snap.val() || {};
+      const histRef = db.ref('inventarioConfig/' + catCodigoActual + '/historialCambios');
+      const cambios = [];
+      if (actual.rotacionMensual !== rotacion) cambios.push({campo:'rotacionMensual', valorAnterior:actual.rotacionMensual, valorNuevo:rotacion});
+      if (actual.costoUnitario !== costo) cambios.push({campo:'costoUnitario', valorAnterior:actual.costoUnitario, valorNuevo:costo});
+      if (actual.cajaMaster !== caja) cambios.push({campo:'cajaMaster', valorAnterior:actual.cajaMaster ?? null, valorNuevo:caja});
+      const updates = { descripcion:desc, rotacionMensual:rotacion, costoUnitario:costo, cajaMaster:caja, fechaActualizacion:ahora };
+      db.ref('inventarioConfig/' + catCodigoActual).update(updates).then(() => {
+        cambios.forEach(c => histRef.push({...c, fecha:ahora}));
+        showAlert('cat-alert','✅ Artículo actualizado correctamente.','success');
+        cargarCatalogo();
+      }).catch(e => showAlert('cat-alert','Error al guardar: ' + e.message,'error'));
+    });
+  } else {
+    // Nuevo artículo — verificar duplicado
+    db.ref('inventarioConfig/' + codigo).once('value', snap => {
+      if (snap.exists()) { showAlert('cat-alert','⚠️ Ya existe un artículo con ese código.','warn'); return; }
+      db.ref('inventarioConfig/' + codigo).set({
+        codigo, descripcion:desc, rotacionMensual:rotacion, costoUnitario:costo,
+        cajaMaster:caja, historialCambios:null, fechaCreacion:ahora, fechaActualizacion:ahora
+      }).then(() => {
+        showAlert('cat-alert','✅ Artículo creado correctamente.','success');
+        catModoEdicion = true;
+        catCodigoActual = codigo;
+        document.getElementById('cat-codigo').setAttribute('readonly','');
+        cargarCatalogo();
+      }).catch(e => showAlert('cat-alert','Error al guardar: ' + e.message,'error'));
+    });
+  }
+}
+ 
+function eliminarCajaMaster() {
+  if (!catModoEdicion || !catCodigoActual) {
+    showAlert('cat-alert','Primero busque un artículo para editar.','warn'); return;
+  }
+  if (!confirm('¿Confirma eliminar la caja máster del artículo ' + catCodigoActual + '?\n\nEl artículo quedará sin caja máster de forma permanente hasta que se asigne una nueva.')) return;
+  const ahora = Date.now();
+  db.ref('inventarioConfig/' + catCodigoActual).once('value', snap => {
+    const actual = snap.val() || {};
+    const cajaAnterior = actual.cajaMaster ?? null;
+    db.ref('inventarioConfig/' + catCodigoActual).update({ cajaMaster: null, fechaActualizacion: ahora }).then(() => {
+      db.ref('inventarioConfig/' + catCodigoActual + '/historialCambios').push({ campo:'cajaMaster', valorAnterior:cajaAnterior, valorNuevo:null, fecha:ahora });
+      document.getElementById('cat-caja').value = '';
+      showAlert('cat-alert','✅ Caja máster eliminada. El artículo queda sin caja máster asignada.','success');
+      cargarCatalogo();
+      buscarArticuloCat();
+    }).catch(e => showAlert('cat-alert','Error: ' + e.message,'error'));
+  });
+}
+ 
+function editarDesdeTabla(codigo) {
+  document.getElementById('cat-codigo').value = codigo;
+  document.getElementById('cat-codigo').removeAttribute('readonly');
+  catModoEdicion = false;
+  buscarArticuloCat();
+  window.scrollTo(0,0);
+}
+ 
+// ═══════════════════════════════════════════════
+// CARGA DE DATOS EN TIEMPO REAL
+// ═══════════════════════════════════════════════
+function cargarCatalogo() {
+  db.ref('inventarioConfig').on('value', snap => {
+    const tbody = document.getElementById('cat-tbody');
+    const dashTotal = document.getElementById('dash-total');
+    const dashCon = document.getElementById('dash-con');
+    const dashSin = document.getElementById('dash-sin');
+    const dashFecha = document.getElementById('dash-fecha');
+    const dashRec = document.getElementById('dash-recientes');
+ 
+    if (!snap.exists()) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">📦</div>Sin artículos registrados.</div></td></tr>';
+      dashTotal.textContent = '0'; dashCon.textContent = '0'; dashSin.textContent = '0'; dashFecha.textContent = '—';
+      dashRec.innerHTML = '<div class="empty"><div class="empty-icon">📦</div>No hay artículos registrados aún.</div>';
+      return;
+    }
+ 
+    const data = snap.val();
+    const arts = Object.values(data).sort((a,b) => (b.fechaActualizacion||0) - (a.fechaActualizacion||0));
+    let conCaja = 0, sinCaja = 0, ultimaFecha = null;
+ 
+    arts.forEach(a => {
+      if (a.cajaMaster && a.cajaMaster > 0) conCaja++; else sinCaja++;
+      if (a.fechaActualizacion && (!ultimaFecha || a.fechaActualizacion > ultimaFecha)) ultimaFecha = a.fechaActualizacion;
+    });
+ 
+    dashTotal.textContent = arts.length;
+    dashCon.textContent = conCaja;
+    dashSin.textContent = sinCaja;
+    dashFecha.textContent = fmtFecha(ultimaFecha);
+    document.getElementById('cat-count').textContent = '(' + arts.length + ' artículos)';
+ 
+    // Tabla catálogo
+    tbody.innerHTML = arts.map(a => `
+      <tr>
+        <td class="code">${a.codigo}</td>
+        <td>${a.descripcion}</td>
+        <td>${fmt(a.rotacionMensual)} uds</td>
+        <td>${fmtMon(a.costoUnitario)}</td>
+        <td>${a.cajaMaster ? fmt(a.cajaMaster) : '<span style="color:#4a6a8a;">—</span>'}</td>
+        <td>${a.cajaMaster && a.cajaMaster > 0
+          ? '<span class="badge badge-ok">Con caja</span>'
+          : '<span class="badge badge-warn">Sin caja</span>'}</td>
+        <td><button class="btn btn-secondary" style="padding:5px 12px;font-size:11px;" onclick="editarDesdeTabla('${a.codigo}')">Editar</button></td>
+      </tr>`).join('');
+ 
+    // Actividad reciente (últimos 5)
+    dashRec.innerHTML = arts.slice(0,5).map(a => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a3a5c;">
+        <div><span style="color:#4ECCA3;font-family:monospace;font-weight:700;">${a.codigo}</span> <span style="color:#c0d8e8;margin-left:8px;">${a.descripcion}</span></div>
+        <div style="font-size:11px;color:#4a6a8a;">${fmtFecha(a.fechaActualizacion)}</div>
+      </div>`).join('');
+  });
+}
+ 
+// Iniciar carga al abrir
+cargarCatalogo();
+</script>
+</body>
+</html>
