@@ -188,7 +188,7 @@ tbody td.code{color:#4ECCA3;font-weight:700;font-family:monospace;}
       </div>
       <div class="form-group">
         <label>Caja Máster (uds/caja)</label>
-        <input type="number" id="mm-caja" readonly placeholder="—"/>
+        <input type="number" id="mm-caja" placeholder="Ej: 24" min="1" oninput="calcularMM()"/>
       </div>
       <div class="form-group">
         <label>Días Máximo</label>
@@ -200,7 +200,6 @@ tbody td.code{color:#4ECCA3;font-weight:700;font-family:monospace;}
       </div>
     </div>
     <div id="mm-alert-codigo" class="alert alert-error"></div>
-    <div id="mm-alert-caja" class="alert alert-warn"></div>
   </div>
  
   <div id="mm-resultado" style="display:none;">
@@ -455,21 +454,21 @@ function buscarArticuloMM() {
       document.getElementById('mm-rotacion').value = art.rotacionMensual;
       document.getElementById('mm-costo').value = art.costoUnitario;
       document.getElementById('mm-caja').value = art.cajaMaster !== null && art.cajaMaster !== undefined ? art.cajaMaster : '';
-      if (!art.cajaMaster || art.cajaMaster <= 0) {
-        showAlert('mm-alert-caja', '⚠️ Este artículo no tiene caja máster asignada. No se puede calcular máximo ni mínimo hasta que se configure en el Catálogo.', 'warn');
-      } else {
-        calcularMM();
-      }
+      calcularMM();
     });
   }, 400);
 }
  
 function calcularMM() {
-  if (!mmArticulo || !mmArticulo.cajaMaster || mmArticulo.cajaMaster <= 0) return;
+  if (!mmArticulo) return;
+  const cajaMaster = parseInt(document.getElementById('mm-caja').value);
   const diasMax = parseInt(document.getElementById('mm-dias-max').value);
   const diasMin = parseInt(document.getElementById('mm-dias-min').value);
-  if (!diasMax || !diasMin || diasMax <= 0 || diasMin <= 0) return;
-  const r = calcularMaxMin(mmArticulo.rotacionMensual, mmArticulo.cajaMaster, mmArticulo.costoUnitario, diasMax, diasMin);
+  if (!cajaMaster || cajaMaster <= 0 || !diasMax || !diasMin || diasMax <= 0 || diasMin <= 0) {
+    document.getElementById('mm-resultado').style.display = 'none';
+    return;
+  }
+  const r = calcularMaxMin(mmArticulo.rotacionMensual, cajaMaster, mmArticulo.costoUnitario, diasMax, diasMin);
   document.getElementById('mm-r-consumo').textContent = r.consumoDiario.toFixed(2);
   document.getElementById('mm-r-max-calc').textContent = fmt(r.maxCalc.toFixed(2)) + ' uds';
   document.getElementById('mm-r-max-aj').textContent = fmt(r.maxAj) + ' uds';
