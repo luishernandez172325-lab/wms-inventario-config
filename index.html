@@ -199,10 +199,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <label>Rotación Mensual (uds)</label>
         <input type="number" id="mm-rotacion" readonly placeholder="—"/>
       </div>
-      <div class="form-group">
-        <label>Costo Unitario (₡)</label>
-        <input type="number" id="mm-costo" readonly placeholder="—"/>
-      </div>
+      <input type="hidden" id="mm-costo"/>
     </div>
 
     <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
@@ -261,7 +258,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
               <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Calculado</th>
               <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Ajustado</th>
               <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Cajas</th>
-              <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 16px;text-align:right;white-space:nowrap;">Valor ₡</th>
+
             </tr>
           </thead>
           <tbody>
@@ -278,7 +275,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
               <td style="padding:14px 16px;text-align:right;font-size:13px;color:#94a3b8;" id="mm-r-max-calc">—</td>
               <td style="padding:14px 16px;text-align:right;font-size:24px;font-weight:700;color:#085041;" id="mm-r-max-aj">—</td>
               <td style="padding:14px 16px;text-align:right;font-size:13px;color:#475569;" id="mm-r-max-cajas">—</td>
-              <td style="padding:14px 16px;text-align:right;font-size:13px;font-weight:700;color:#085041;" id="mm-r-max-val">—</td>
+<td style="display:none;" id="mm-r-max-val"></td>
             </tr>
             <tr>
               <td style="padding:14px 16px;position:sticky;left:0;background:#fff;z-index:1;">
@@ -293,7 +290,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
               <td style="padding:14px 16px;text-align:right;font-size:13px;color:#94a3b8;" id="mm-r-min-calc">—</td>
               <td style="padding:14px 16px;text-align:right;font-size:24px;font-weight:700;color:#633806;" id="mm-r-min-aj">—</td>
               <td style="padding:14px 16px;text-align:right;font-size:13px;color:#475569;" id="mm-r-min-cajas">—</td>
-              <td style="padding:14px 16px;text-align:right;font-size:13px;font-weight:700;color:#633806;" id="mm-r-min-val">—</td>
+<td style="display:none;" id="mm-r-min-val"></td>
             </tr>
           </tbody>
         </table>
@@ -335,10 +332,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <label>Rotación Mensual (uds)</label>
         <input type="number" id="cob-rotacion" readonly placeholder="—"/>
       </div>
-      <div class="form-group">
-        <label>Costo Unitario (₡)</label>
-        <input type="number" id="cob-costo" readonly placeholder="—"/>
-      </div>
+      <input type="hidden" id="cob-costo"/>
       <div class="form-group">
         <label>Saldo Actual (uds)</label>
         <input type="number" id="cob-saldo" placeholder="Ej: 240" min="0" oninput="calcularCob()"/>
@@ -354,7 +348,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <div class="result-item"><label>Consumo Diario</label><div class="val" id="cob-r-consumo">—</div><div style="font-size:11px;color:#4a6a8a;">unidades/día</div></div>
         <div class="result-item"><label>Días de Cobertura</label><div class="val" id="cob-r-dias">—</div></div>
         <div class="result-item"><label>Meses de Cobertura</label><div class="val secondary" id="cob-r-meses">—</div></div>
-        <div class="result-item"><label>Valor del Inventario</label><div class="val secondary" id="cob-r-valor">—</div></div>
+<div style="display:none;" id="cob-r-valor"></div>
       </div>
       <div id="cob-indefinida" class="alert alert-info" style="margin-top:0;">⚠️ Cobertura indefinida: la rotación mensual es 0, por lo que no se puede calcular el consumo diario.</div>
     </div>
@@ -385,6 +379,10 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <div class="form-group" style="margin-bottom:14px;">
           <label>Descripción</label>
           <input type="text" id="cat-desc" placeholder="Nombre del artículo"/>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Bodega</label>
+          <input type="text" id="cat-bodega" placeholder="Ej: 08" style="text-transform:uppercase;"/>
         </div>
         <div class="form-group" style="margin-bottom:14px;">
           <label>Rotación Mensual (uds)</label>
@@ -426,6 +424,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <table>
           <thead>
             <tr>
+              <th>Bodega</th>
               <th>Código</th>
               <th>Descripción</th>
               <th>Rotación/mes</th>
@@ -777,7 +776,7 @@ function buscarArticuloCob() {
   const codigo = document.getElementById('cob-codigo').value.trim();
   hideAlert('cob-alert-codigo');
   document.getElementById('cob-resultado').style.display = 'none';
-  ['cob-desc','cob-rotacion','cob-costo'].forEach(id => document.getElementById(id).value = '');
+  ['cob-desc','cob-rotacion'].forEach(id => document.getElementById(id).value = '');
   cobArticulo = null;
   if (!codigo) return;
   cobTimer = setTimeout(() => {
@@ -821,7 +820,7 @@ let catModoEdicion = false;
 let catCodigoActual = null;
  
 function limpiarCat() {
-  ['cat-codigo','cat-desc','cat-rotacion','cat-costo','cat-caja'].forEach(id => document.getElementById(id).value = '');
+  ['cat-codigo','cat-desc','cat-bodega','cat-rotacion','cat-costo','cat-caja'].forEach(id => document.getElementById(id).value = '');
   hideAlert('cat-alert');
   document.getElementById('cat-historial-wrap').style.display = 'none';
   document.getElementById('cat-codigo').removeAttribute('readonly');
@@ -852,6 +851,7 @@ function buscarArticuloCat() {
     document.getElementById('cat-desc').value = art.descripcion;
     document.getElementById('cat-rotacion').value = art.rotacionMensual;
     document.getElementById('cat-costo').value = art.costoUnitario;
+    document.getElementById('cat-bodega').value = art.bodega || '';
     document.getElementById('cat-caja').value = art.cajaMaster !== null && art.cajaMaster !== undefined ? art.cajaMaster : '';
     renderHistorial(art.historialCambios);
   });
@@ -897,7 +897,8 @@ function guardarArticulo() {
       if (actual.rotacionMensual !== rotacion) cambios.push({campo:'rotacionMensual', valorAnterior:actual.rotacionMensual, valorNuevo:rotacion});
       if (actual.costoUnitario !== costo) cambios.push({campo:'costoUnitario', valorAnterior:actual.costoUnitario, valorNuevo:costo});
       if (actual.cajaMaster !== caja) cambios.push({campo:'cajaMaster', valorAnterior:actual.cajaMaster ?? null, valorNuevo:caja});
-      const updates = { descripcion:desc, rotacionMensual:rotacion, costoUnitario:costo, cajaMaster:caja, fechaActualizacion:ahora };
+      const bodega = document.getElementById('cat-bodega').value.trim();
+      const updates = { descripcion:desc, bodega:bodega, rotacionMensual:rotacion, costoUnitario:costo, cajaMaster:caja, fechaActualizacion:ahora };
       db.ref('inventarioConfig/' + catCodigoActual).update(updates).then(() => {
         cambios.forEach(c => histRef.push({...c, fecha:ahora}));
         showAlert('cat-alert','✅ Artículo actualizado correctamente.','success');
@@ -909,7 +910,7 @@ function guardarArticulo() {
     db.ref('inventarioConfig/' + codigo).once('value', snap => {
       if (snap.exists()) { showAlert('cat-alert','⚠️ Ya existe un artículo con ese código.','warn'); return; }
       db.ref('inventarioConfig/' + codigo).set({
-        codigo, descripcion:desc, rotacionMensual:rotacion, costoUnitario:costo,
+        codigo, descripcion:desc, bodega:document.getElementById('cat-bodega').value.trim(), rotacionMensual:rotacion, costoUnitario:costo,
         cajaMaster:caja, historialCambios:null, fechaCreacion:ahora, fechaActualizacion:ahora
       }).then(() => {
         showAlert('cat-alert','✅ Artículo creado correctamente.','success');
@@ -986,6 +987,7 @@ function cargarCatalogo() {
     // Tabla catálogo
     tbody.innerHTML = arts.map(a => `
       <tr>
+        <td>${a.bodega || '—'}</td>
         <td class="code">${a.codigo}</td>
         <td>${a.descripcion}</td>
         <td>${fmt(a.rotacionMensual)} uds</td>
