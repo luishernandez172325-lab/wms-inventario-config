@@ -173,9 +173,29 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
       <div class="dash-sub">registro más reciente</div>
     </div>
   </div>
-  <div class="section-title">Actividad reciente</div>
-  <div class="form-card" id="dash-recientes">
-    <div class="empty"><div class="empty-icon">📦</div>No hay artículos registrados aún.</div>
+  <div class="section-title">Top artículos por rotación</div>
+  <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:700px;">
+        <thead>
+          <tr style="background:#0D2137;">
+            <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 14px;text-align:left;white-space:nowrap;">#</th>
+            <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 14px;text-align:left;white-space:nowrap;">Código</th>
+            <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 14px;text-align:left;white-space:nowrap;">Descripción</th>
+            <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 14px;text-align:left;white-space:nowrap;">Bodega</th>
+            <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 14px;text-align:right;white-space:nowrap;">Rotación/mes</th>
+            <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 14px;text-align:right;white-space:nowrap;">Uds. sugeridas picking</th>
+            <th style="font-size:10px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:11px 14px;text-align:center;white-space:nowrap;">Presentación</th>
+          </tr>
+        </thead>
+        <tbody id="dash-top-tbody">
+          <tr><td colspan="7"><div class="empty"><div class="empty-icon">📦</div>Cargando...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="dash-ver-mas-wrap" style="display:none;padding:12px 14px;border-top:1px solid #f1f5f9;text-align:center;">
+      <button onclick="toggleDashTop()" id="dash-ver-mas-btn" style="padding:7px 20px;background:#f1f5f9;color:#0D2137;border:1.5px solid #cbd5e1;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Ver más</button>
+    </div>
   </div>
 </div>
  
@@ -973,7 +993,7 @@ function cargarCatalogo() {
     const dashCon = document.getElementById('dash-con');
     const dashSin = document.getElementById('dash-sin');
     const dashFecha = document.getElementById('dash-fecha');
-    const dashRec = document.getElementById('dash-recientes');
+    const dashRec = null; // reemplazado por dash-top-tbody
  
     if (!snap.exists()) {
       tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">📦</div>Sin artículos registrados.</div></td></tr>';
@@ -1012,15 +1032,63 @@ function cargarCatalogo() {
         <td><button class="btn btn-secondary" style="padding:5px 12px;font-size:11px;" onclick="editarDesdeTabla('${a.codigo}')">Editar</button></td>
       </tr>`).join('');
  
-    // Actividad reciente (últimos 5)
-    dashRec.innerHTML = arts.slice(0,5).map(a => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
-        <div><span style="color:#4ECCA3;font-family:monospace;font-weight:700;">${a.codigo}</span> <span style="color:#c0d8e8;margin-left:8px;">${a.descripcion}</span></div>
-        <div style="font-size:11px;color:#4a6a8a;">${fmtFecha(a.fechaActualizacion)}</div>
-      </div>`).join('');
+    // Top por rotación (mayor a menor)
+    const topArts = [...arts].sort((a,b) => (b.rotacionMensual||0) - (a.rotacionMensual||0));
+    window._dashTopArts = topArts;
+    window._dashTopExpandido = false;
+    renderDashTop(topArts, false);
   });
 }
  
+function calcularSugeridoPicking(rotacionMensual, cajaMaster) {
+  if (!cajaMaster || cajaMaster <= 0) return null;
+  const cd = rotacionMensual / 30;
+  const crudo = cd * 30; // 30 días de inventario como base
+  const entero = Math.ceil(crudo);
+  const resto = entero % cajaMaster;
+  const ajustado = resto === 0 ? entero : entero + (cajaMaster - resto);
+  // Mínimo 2 cajas
+  return Math.max(ajustado, cajaMaster * 2);
+}
+
+function renderDashTop(arts, expandido) {
+  const tbody = document.getElementById('dash-top-tbody');
+  const btnWrap = document.getElementById('dash-ver-mas-wrap');
+  const btn = document.getElementById('dash-ver-mas-btn');
+  if (!tbody) return;
+  const limite = expandido ? arts.length : 20;
+  const visibles = arts.slice(0, limite);
+  tbody.innerHTML = visibles.map((a, i) => {
+    const tieneCaja = a.cajaMaster && a.cajaMaster > 0;
+    const sugerido = tieneCaja ? calcularSugeridoPicking(a.rotacionMensual, a.cajaMaster) : null;
+    const sugeridoStr = sugerido ? fmt(sugerido) + ' uds' : '<span style="color:#94a3b8;">Sin caja</span>';
+    const estadoBadge = tieneCaja
+      ? '<span style="background:#f0fdf4;color:#15803d;border:1px solid #86efac;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;">✓ Configurada</span>'
+      : '<span style="background:#fffbeb;color:#92400e;border:1px solid #fcd34d;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;">⚠ Pendiente</span>';
+    const rowBg = i % 2 === 0 ? '' : 'background:#fafafa;';
+    return `<tr style="${rowBg}border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 14px;font-size:12px;color:#94a3b8;font-weight:700;">${i+1}</td>
+      <td style="padding:10px 14px;font-family:monospace;font-weight:700;color:#0D2137;font-size:13px;">${a.codigo}</td>
+      <td style="padding:10px 14px;font-size:12px;color:#334155;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.descripcion}">${a.descripcion}</td>
+      <td style="padding:10px 14px;font-size:12px;color:#475569;text-align:center;">${a.bodega || '—'}</td>
+      <td style="padding:10px 14px;text-align:right;font-size:13px;font-weight:700;color:#0D2137;">${fmt(a.rotacionMensual)}</td>
+      <td style="padding:10px 14px;text-align:right;font-size:13px;font-weight:700;color:#085041;">${sugeridoStr}</td>
+      <td style="padding:10px 14px;text-align:center;">${estadoBadge}</td>
+    </tr>`;
+  }).join('');
+  if (arts.length > 20) {
+    btnWrap.style.display = 'block';
+    btn.textContent = expandido ? '▲ Ver menos' : `Ver más (${arts.length - 20} artículos restantes)`;
+  } else {
+    btnWrap.style.display = 'none';
+  }
+}
+
+function toggleDashTop() {
+  window._dashTopExpandido = !window._dashTopExpandido;
+  renderDashTop(window._dashTopArts || [], window._dashTopExpandido);
+}
+
 // Iniciar carga al abrir
 cargarCatalogo();
 </script>
