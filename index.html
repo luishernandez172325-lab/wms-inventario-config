@@ -586,7 +586,14 @@ function cambiarCajasMin(delta) {
 function limpiarMM() {
   document.getElementById('mm-codigo').value = '';
   const elCaja = document.getElementById('mm-caja');
-  if (elCaja) { elCaja.value = ''; elCaja.style.cssText = ''; elCaja.placeholder = '—'; }
+  if (elCaja) {
+    elCaja.value = '';
+    elCaja.placeholder = '—';
+    elCaja.style.background = '';
+    elCaja.style.borderColor = '';
+    elCaja.style.color = '';
+    elCaja.style.fontWeight = '';
+  }
   const elNueva = document.getElementById('mm-caja-nueva');
   if (elNueva) elNueva.value = '';
   ['mm-desc','mm-rotacion','mm-costo'].forEach(id => {
@@ -652,7 +659,13 @@ function buscarArticuloMM() {
     if (el) el.value = '';
   });
   const elCaja = document.getElementById('mm-caja');
-  if (elCaja) { elCaja.value = ''; elCaja.style.cssText = ''; }
+  if (elCaja) {
+    elCaja.value = '';
+    elCaja.style.background = '';
+    elCaja.style.borderColor = '';
+    elCaja.style.color = '';
+    elCaja.style.fontWeight = '';
+  }
   const elNueva = document.getElementById('mm-caja-nueva');
   if (elNueva) elNueva.value = '';
   const elBtn = document.getElementById('mm-btn-registrar');
