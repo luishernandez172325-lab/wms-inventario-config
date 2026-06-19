@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Importar Catálogo — Inventario Config</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.card{background:#fff;border:1.5px solid #cbd5e1;border-radius:16px;padding:36px;max-width:560px;width:100%;box-shadow:0 4px 16px rgba(13,33,55,.10);}
+.header{background:#0D2137;border-radius:10px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.header-brand{font-size:9px;color:#4ECCA3;font-weight:700;letter-spacing:2px;}
+.header-title{font-size:14px;color:#fff;font-weight:600;}
+h2{font-size:16px;font-weight:700;color:#0D2137;margin-bottom:6px;}
+.sub{font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.5;}
+.zona{border:2px dashed #cbd5e1;border-radius:10px;padding:28px;margin-bottom:20px;cursor:pointer;transition:border-color .2s;text-align:center;}
+.zona:hover{border-color:#4ECCA3;}
+.zona-text{color:#64748b;font-size:13px;}
+.zona-text strong{color:#0D2137;}
+input[type=file]{display:none;}
+.btn{width:100%;padding:13px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;display:none;}
+.btn:disabled{background:#cbd5e1;color:#94a3b8;cursor:not-allowed;}
+.btn-danger{background:#ef4444;color:#fff;display:block;}
+.btn-danger:disabled{background:#fecaca;color:#fff;}
+.progress{background:#f1f5f9;border-radius:8px;height:10px;margin:14px 0;overflow:hidden;display:none;}
+.bar{height:100%;background:#4ECCA3;transition:width .3s;width:0%;}
+.status{font-size:13px;color:#0D2137;margin-top:10px;min-height:20px;font-weight:600;text-align:center;}
+.log{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:14px;font-size:11px;color:#475569;max-height:160px;overflow-y:auto;display:none;font-family:monospace;margin-top:12px;line-height:1.7;}
+.step{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#475569;}
+.step-num{width:22px;height:22px;background:#0D2137;color:#4ECCA3;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div>
+      <div class="header-brand">AEL MÓDULOS</div>
+      <div class="header-title">Importar Catálogo de Inventario</div>
+    </div>
+  </div>
+
+  <h2>Actualización masiva del catálogo</h2>
+  <p class="sub">Este proceso <strong>borra todo el catálogo actual</strong> en Firebase y carga los datos del nuevo archivo Excel. Incluye: Bodega, Código, Descripción, Rotación mensual y Costo unitario.</p>
+
+  <div class="step"><div class="step-num">1</div><span>Selecciona el archivo <strong>Rotacion_por_mes_con_bodega.xlsx</strong></span></div>
+  <div class="step"><div class="step-num">2</div><span>Confirma el borrado del catálogo actual</span></div>
+  <div class="step" style="border:none;"><div class="step-num">3</div><span>El sistema carga los <strong>9,408 artículos</strong> automáticamente</span></div>
+
+  <div class="zona" style="margin-top:16px;" onclick="document.getElementById('fileInput').click()">
+    <div class="zona-text">📂 Haz clic aquí para seleccionar el archivo<br><strong>Rotacion_por_mes_con_bodega.xlsx</strong></div>
+  </div>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="leerExcel(this)"/>
+
+  <div class="status" id="status"></div>
+  <button class="btn btn-danger" id="btn-borrar" onclick="borrarYCargar()">🗑️ Borrar catálogo actual e importar nuevo</button>
+  <div class="progress" id="prog"><div class="bar" id="bar"></div></div>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBbPQnG5h7zWIS284c1Epfplyf1W0tQOro",
+  authDomain: "inventario-config-mayoreo.firebaseapp.com",
+  databaseURL: "https://inventario-config-mayoreo-default-rtdb.firebaseio.com",
+  projectId: "inventario-config-mayoreo",
+  storageBucket: "inventario-config-mayoreo.firebasestorage.app",
+  messagingSenderId: "1038871465798",
+  appId: "1:1038871465798:web:826d9b27016c2ef9011f47"
+});
+const db = firebase.database();
+let DATOS = null;
+
+function leerExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('status').textContent = '⏳ Leyendo archivo...';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets['Base'] || wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:['bodega','codigo','descripcion','rxm','costo'], range:1});
+      const ahora = Date.now();
+      DATOS = {};
+      rows.forEach(row => {
+        if (!row.codigo) return;
+        try {
+          const codigo = String(parseInt(row.codigo)).trim();
+          DATOS[codigo] = {
+            codigo,
+            bodega: String(row.bodega || '').trim(),
+            descripcion: String(row.descripcion || '').trim(),
+            rotacionMensual: Math.round((parseFloat(row.rxm) || 0) * 100) / 100,
+            costoUnitario: Math.round((parseFloat(row.costo) || 0) * 10000) / 10000,
+            cajaMaster: null,
+            historialCambios: null,
+            fechaCreacion: ahora,
+            fechaActualizacion: ahora
+          };
+        } catch(e) {}
+      });
+      const total = Object.keys(DATOS).length;
+      document.getElementById('status').textContent = '✅ ' + total + ' artículos listos. Presiona el botón para continuar.';
+      document.getElementById('btn-borrar').style.display = 'block';
+    } catch(e) {
+      document.getElementById('status').textContent = '❌ Error leyendo el archivo: ' + e.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function borrarYCargar() {
+  if (!DATOS) return;
+  const total = Object.keys(DATOS).length;
+  if (!confirm('⚠️ ATENCIÓN\n\nEsto borrará TODOS los artículos actuales del catálogo y cargará ' + total + ' artículos nuevos.\n\n¿Confirmas?')) return;
+
+  const btn = document.getElementById('btn-borrar');
+  const log = document.getElementById('log');
+  const status = document.getElementById('status');
+  const prog = document.getElementById('prog');
+  const bar = document.getElementById('bar');
+
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+  prog.style.display = 'block';
+  log.style.display = 'block';
+
+  // PASO 1: Borrar nodo completo
+  status.textContent = '🗑️ Borrando catálogo actual...';
+  log.innerHTML += '🗑️ Eliminando nodo inventarioConfig...\n';
+  try {
+    await db.ref('inventarioConfig').remove();
+    log.innerHTML += '✅ Catálogo anterior eliminado.\n';
+  } catch(e) {
+    log.innerHTML += '❌ Error al borrar: ' + e.message + '\n';
+    status.textContent = '❌ Error al borrar el catálogo.';
+    btn.disabled = false;
+    return;
+  }
+
+  // PASO 2: Cargar por lotes
+  const codigos = Object.keys(DATOS);
+  const LOTE = 200;
+  let procesados = 0;
+  let errores = 0;
+
+  for (let i = 0; i < total; i += LOTE) {
+    const lote = codigos.slice(i, i + LOTE);
+    const updates = {};
+    lote.forEach(c => updates[c] = DATOS[c]);
+    try {
+      await db.ref('inventarioConfig').update(updates);
+      procesados += lote.length;
+    } catch(e) {
+      errores += lote.length;
+      log.innerHTML += '❌ Error lote ' + Math.floor(i/LOTE+1) + ': ' + e.message + '\n';
+    }
+    const pct = Math.round((i + lote.length) / total * 100);
+    bar.style.width = pct + '%';
+    status.textContent = 'Cargando: ' + procesados + ' / ' + total + ' (' + pct + '%)';
+    log.innerHTML += '✅ Lote ' + (Math.floor(i/LOTE)+1) + ': artículos ' + (i+1) + '-' + Math.min(i+LOTE,total) + ' OK\n';
+    log.scrollTop = log.scrollHeight;
+    await new Promise(r => setTimeout(r, 80));
+  }
+
+  if (errores === 0) {
+    status.textContent = '✅ ¡Listo! ' + procesados + ' artículos cargados correctamente.';
+    btn.textContent = '✅ Importación completada';
+    btn.style.background = '#15803d';
+  } else {
+    status.textContent = '⚠️ ' + procesados + ' OK · ' + errores + ' con error.';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
