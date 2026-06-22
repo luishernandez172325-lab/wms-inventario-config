@@ -125,10 +125,98 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   tbody td{padding:8px 8px;}
 }
 @media(max-width:480px){.dash-grid{grid-template-columns:1fr;}.header-sep{display:none;}}
+
+/* ── PANTALLA SELECCIÓN BODEGA ── */
+#pantalla-seleccion{position:fixed;top:0;left:0;width:100%;height:100%;background:#f1f5f9;z-index:9999;display:flex;align-items:center;justify-content:center;}
+.sel-card{background:#fff;border:1.5px solid #cbd5e1;border-radius:16px;padding:36px;max-width:560px;width:100%;box-shadow:0 8px 32px rgba(13,33,55,.12);}
+.sel-header{background:#0D2137;border-radius:10px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.sel-brand{font-size:9px;color:#4ECCA3;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.sel-title{font-size:14px;color:#fff;font-weight:600;}
+.sel-subtitle{font-size:15px;font-weight:700;color:#0D2137;margin-bottom:6px;}
+.sel-desc{font-size:13px;color:#64748b;margin-bottom:20px;}
+.dropdown-bodega{position:relative;margin-bottom:16px;}
+.dropdown-trigger{width:100%;background:#fff;border:2px solid #0D2137;border-radius:10px;padding:13px 16px;font-size:14px;font-weight:700;color:#0D2137;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-radius .15s;}
+.dropdown-trigger.open{border-radius:10px 10px 0 0;}
+.dropdown-trigger .placeholder{color:#94a3b8;font-weight:400;}
+.dropdown-trigger .arrow{font-size:12px;color:#64748b;transition:transform .2s;}
+.dropdown-trigger.open .arrow{transform:rotate(180deg);}
+.dropdown-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0D2137;border-top:none;border-radius:0 0 10px 10px;max-height:220px;overflow-y:auto;z-index:100;display:none;box-shadow:0 8px 24px rgba(13,33,55,.12);}
+.dropdown-list.show{display:block;}
+.dropdown-item{padding:12px 16px;font-size:13px;font-weight:600;color:#334155;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;transition:background .15s;}
+.dropdown-item:last-child{border-bottom:none;}
+.dropdown-item:hover{background:#f0fdf4;color:#0D2137;}
+.dropdown-item .item-code{font-size:14px;font-weight:700;color:#0D2137;min-width:28px;}
+.dropdown-item .item-name{color:#475569;}
+.pin-wrap{display:none;margin-bottom:16px;}
+.pin-wrap.show{display:block;}
+.pin-input{width:100%;background:#fff;border:2px solid #0D2137;border-radius:8px;padding:11px 16px;font-size:16px;font-weight:700;color:#0D2137;outline:none;letter-spacing:3px;text-align:center;}
+.pin-input::placeholder{letter-spacing:0;font-weight:400;font-size:14px;}
+.btn-ingresar{width:100%;padding:12px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.btn-ingresar:hover{background:#1a3a5c;}
+.btn-admin-link{background:none;border:none;color:#94a3b8;font-size:12px;cursor:pointer;text-decoration:underline;display:block;text-align:center;margin-top:8px;}
+.btn-admin-link:hover{color:#475569;}
+.sel-error{background:#fef2f2;border:1.5px solid #fca5a5;color:#b91c1c;border-radius:8px;padding:10px 14px;font-size:13px;display:none;margin-bottom:12px;}
+.sel-error.show{display:block;}
+
+/* ── INDICADOR BODEGA ACTIVA EN HEADER ── */
+#header-bodega-info{display:none;align-items:center;gap:10px;}
+.bodega-badge{background:#4ECCA3;color:#0D2137;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:.5px;}
+.btn-cambiar-bodega{background:none;border:1px solid rgba(78,204,163,.4);color:#4ECCA3;font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;}
+.btn-cambiar-bodega:hover{background:rgba(78,204,163,.1);}
+
+/* ── PESTAÑA ADMINISTRACIÓN ── */
+.admin-section{background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 6px rgba(13,33,55,.07);}
+.admin-bodega-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;flex-wrap:wrap;}
+.admin-bodega-code{font-size:16px;font-weight:700;color:#0D2137;min-width:40px;}
+.admin-bodega-name{font-size:13px;color:#475569;flex:1;}
+.admin-pin-field{background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:6px;padding:6px 12px;font-size:13px;font-weight:600;color:#0D2137;width:160px;outline:none;}
+.admin-pin-field:focus{border-color:#0D2137;}
+
 </style>
 </head>
 <body>
- 
+
+<!-- PANTALLA SELECCIÓN DE BODEGA -->
+<div id="pantalla-seleccion">
+  <div class="sel-card">
+    <div class="sel-header">
+      <div>
+        <div class="sel-brand">AEL MÓDULOS</div>
+        <div class="sel-title">Configuración de Inventario</div>
+      </div>
+    </div>
+    <div class="sel-subtitle">Selecciona tu bodega</div>
+    <div class="sel-desc">Elige la bodega con la que vas a trabajar en esta sesión.</div>
+    <div class="dropdown-bodega" id="dropdown-bodega">
+      <div class="dropdown-trigger" id="dropdown-trigger" onclick="toggleDropdown()">
+        <span id="dropdown-selected" class="placeholder">Selecciona una bodega...</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="dropdown-list" id="dropdown-list">
+        <div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Cargando...</div>
+      </div>
+    </div>
+    <div class="sel-error" id="sel-error"></div>
+    <div class="pin-wrap" id="pin-wrap">
+      <label style="font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;display:block;margin-bottom:6px;">PIN de acceso</label>
+      <input type="password" class="pin-input" id="pin-input" placeholder="Ingresa el PIN" onkeydown="if(event.key==='Enter')verificarPin()"/>
+      <div style="margin-top:10px;">
+        <button class="btn-ingresar" onclick="verificarPin()">Ingresar →</button>
+        <button class="btn-admin-link" onclick="volverSeleccion()">← Volver a selección de bodega</button>
+      </div>
+    </div>
+    <div id="admin-pin-wrap" style="display:none;">
+      <label style="font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;display:block;margin-bottom:6px;">PIN Maestro de Administración</label>
+      <input type="password" class="pin-input" id="admin-pin-input" placeholder="Ingresa el PIN maestro" onkeydown="if(event.key==='Enter')verificarPinAdmin()"/>
+      <div style="margin-top:10px;">
+        <button class="btn-ingresar" onclick="verificarPinAdmin()">Ingresar como Admin →</button>
+        <button class="btn-admin-link" onclick="volverSeleccion()">← Volver</button>
+      </div>
+    </div>
+    <button class="btn-admin-link" id="btn-ir-admin" onclick="mostrarAdminLogin()">⚙ Administración</button>
+  </div>
+</div>
+
 <!-- HEADER -->
 <div class="header">
   <div>
@@ -136,7 +224,12 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
     <div class="header-title">Configuración de Inventario</div>
   </div>
   <div class="header-sep"></div>
-  <div style="font-size:12px;color:#4a6a8a;">Consultas / Configuración Inventario</div>
+  <div id="header-bodega-info" style="display:none;align-items:center;gap:10px;">
+    <span class="bodega-badge" id="header-bodega-badge">Bodega —</span>
+    <span style="font-size:12px;color:#7a9bb5;" id="header-bodega-nombre"></span>
+    <button class="btn-cambiar-bodega" onclick="cambiarBodega()">↩ Cambiar</button>
+  </div>
+  <div id="header-info-default" style="font-size:12px;color:#4a6a8a;">Consultas / Configuración Inventario</div>
 </div>
  
 <!-- TABS -->
@@ -145,6 +238,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   <div class="tab" onclick="showTab('maxmin')">Máximos y Mínimos</div>
   <div class="tab" onclick="showTab('cobertura')">Meses de Inventario</div>
   <div class="tab" onclick="showTab('catalogo')">Catálogo de Productos</div>
+  <div class="tab" id="tab-admin" onclick="showTab('admin')" style="display:none;color:#f59e0b;">⚙ Administración</div>
 </div>
  
 <!-- ══════════════════════════════════════════ -->
@@ -463,6 +557,55 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   </div>
 </div>
  
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB: ADMINISTRACIÓN                        -->
+<!-- ══════════════════════════════════════════ -->
+<div id="page-admin" class="page">
+  <div class="section-title">Administración de Bodegas</div>
+
+  <!-- Crear bodega -->
+  <div class="admin-section">
+    <div style="font-size:13px;font-weight:700;color:#0D2137;margin-bottom:14px;">➕ Agregar nueva bodega</div>
+    <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-group">
+        <label>Código</label>
+        <input type="text" id="adm-nuevo-codigo" placeholder="Ej: 08" style="text-transform:uppercase;"/>
+      </div>
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="adm-nuevo-nombre" placeholder="Ej: Alisto y Empaque"/>
+      </div>
+      <div class="form-group">
+        <label>PIN de acceso</label>
+        <input type="text" id="adm-nuevo-pin" placeholder="Ej: Bodega08$"/>
+      </div>
+      <button onclick="crearBodega()" class="btn btn-primary" style="height:42px;">Crear</button>
+    </div>
+    <div id="adm-alert-crear" class="alert" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- Lista de bodegas -->
+  <div class="admin-section">
+    <div style="font-size:13px;font-weight:700;color:#0D2137;margin-bottom:14px;">Bodegas registradas</div>
+    <div id="adm-bodegas-lista">
+      <div class="empty">Cargando...</div>
+    </div>
+  </div>
+
+  <!-- PIN Maestro -->
+  <div class="admin-section">
+    <div style="font-size:13px;font-weight:700;color:#0D2137;margin-bottom:14px;">🔑 Cambiar PIN Maestro</div>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:200px;">
+        <label>Nuevo PIN Maestro</label>
+        <input type="text" id="adm-nuevo-pin-maestro" placeholder="Nuevo PIN maestro"/>
+      </div>
+      <button onclick="cambiarPinMaestro()" class="btn btn-primary" style="height:42px;">Actualizar</button>
+    </div>
+    <div id="adm-alert-pin-maestro" class="alert" style="margin-top:10px;"></div>
+  </div>
+</div>
+
 <!-- ══════════ FIREBASE + LÓGICA ══════════ -->
 <script>
 // ── FIREBASE INIT ──
@@ -478,6 +621,304 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
  
+// ═══════════════════════════════════════════════
+// SISTEMA DE BODEGAS Y AUTENTICACIÓN
+// ═══════════════════════════════════════════════
+const PIN_MAESTRO_DEFAULT = 'Mayoreo01$';
+let bodegaActiva = null;     // código de bodega activa
+let bodegaActivaNombre = ''; // nombre de bodega activa
+let esAdmin = false;         // sesión de admin
+let _bodegasCache = {};      // cache de bodegas leídas
+
+// Inicializar: leer bodegas únicas del catálogo + config
+// Nombres por defecto de bodegas conocidas
+const NOMBRES_BODEGAS_DEFAULT = {
+  '01':'01 B.QUIMICOS','02':'02 B.CARRETILLOS','03':'03 B.SOTANO',
+  '04':'04 B.REPUESTOS','05':'05 BODEGA','06':'06 BODEGA',
+  '07':'07 B.PROMOCIONAL','08':'08 BODEGA'
+};
+
+function inicializarBodegas() {
+  const promCat = db.ref('inventarioConfig').once('value');
+  const promConf = db.ref('configuracion/bodegas').once('value');
+
+  Promise.all([promCat, promConf]).then(([snapCat, snapConf]) => {
+    _bodegasCache = (snapConf.exists() && snapConf.val()) ? snapConf.val() : {};
+
+    // Registrar nombres default en Firebase si no existen aún
+    const updates = {};
+    Object.keys(NOMBRES_BODEGAS_DEFAULT).forEach(cod => {
+      if (!_bodegasCache[cod] || !_bodegasCache[cod].nombre) {
+        updates['configuracion/bodegas/' + cod + '/nombre'] = NOMBRES_BODEGAS_DEFAULT[cod];
+        if (!_bodegasCache[cod]) _bodegasCache[cod] = {};
+        _bodegasCache[cod].nombre = NOMBRES_BODEGAS_DEFAULT[cod];
+      }
+    });
+    if (Object.keys(updates).length > 0) db.ref().update(updates);
+
+    // Bodegas únicas del catálogo
+    const uniqueBodegas = new Set();
+    if (snapCat.exists()) {
+      Object.values(snapCat.val()).forEach(art => {
+        if (art && art.bodega && art.bodega.trim()) uniqueBodegas.add(art.bodega.trim());
+      });
+    }
+
+    const list = document.getElementById('dropdown-list');
+    if (uniqueBodegas.size === 0) {
+      list.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">No se encontraron bodegas en el catálogo.</div>';
+      return;
+    }
+
+    renderBodegasGrid([...uniqueBodegas].sort());
+  }).catch(err => {
+    console.error('Error cargando bodegas:', err);
+    const list = document.getElementById('dropdown-list');
+    if (list) list.innerHTML = '<div style="color:#b91c1c;font-size:13px;text-align:center;padding:16px;">Error: ' + err.message + '</div>';
+  });
+}
+
+function renderBodegasGrid(bodegas) {
+  const list = document.getElementById('dropdown-list');
+  if (bodegas.length === 0) {
+    list.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">No hay bodegas en el catálogo.</div>';
+    return;
+  }
+  list.innerHTML = bodegas.map(cod => {
+    const config = _bodegasCache[cod] || {};
+    const nombre = config.nombre || (cod + ' BODEGA');
+    return `<div class="dropdown-item" onclick="seleccionarBodega('${cod}')">
+      <span class="item-code">${cod}</span>
+      <span class="item-name">${nombre}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleDropdown() {
+  const trigger = document.getElementById('dropdown-trigger');
+  const list = document.getElementById('dropdown-list');
+  const isOpen = list.classList.contains('show');
+  if (isOpen) {
+    list.classList.remove('show');
+    trigger.classList.remove('open');
+  } else {
+    list.classList.add('show');
+    trigger.classList.add('open');
+  }
+}
+
+// Cerrar dropdown al hacer clic fuera
+document.addEventListener('click', function(e) {
+  const dd = document.getElementById('dropdown-bodega');
+  if (dd && !dd.contains(e.target)) {
+    document.getElementById('dropdown-list').classList.remove('show');
+    document.getElementById('dropdown-trigger').classList.remove('open');
+  }
+});
+
+let _bodegaSeleccionada = null;
+
+function seleccionarBodega(cod) {
+  _bodegaSeleccionada = cod;
+  // Cerrar dropdown y mostrar selección
+  const config = _bodegasCache[cod] || {};
+  const nombre = config.nombre || (cod + ' BODEGA');
+  const trigger = document.getElementById('dropdown-trigger');
+  const list = document.getElementById('dropdown-list');
+  const selectedEl = document.getElementById('dropdown-selected');
+  selectedEl.textContent = cod + ' — ' + nombre;
+  selectedEl.classList.remove('placeholder');
+  list.classList.remove('show');
+  trigger.classList.remove('open');
+  // Mostrar campo PIN
+  document.getElementById('pin-wrap').classList.add('show');
+  document.getElementById('admin-pin-wrap').style.display = 'none';
+  document.getElementById('btn-ir-admin').style.display = 'none';
+  document.getElementById('sel-error').classList.remove('show');
+  document.getElementById('pin-input').value = '';
+  setTimeout(() => document.getElementById('pin-input').focus(), 100);
+}
+
+function verificarPin() {
+  const pin = document.getElementById('pin-input').value.trim();
+  const config = _bodegasCache[_bodegaSeleccionada] || {};
+  const pinCorrecto = config.pin || null;
+  const errEl = document.getElementById('sel-error');
+
+  // Si no tiene PIN configurado aún, denegar acceso
+  if (!pinCorrecto) {
+    errEl.textContent = '⚠️ Esta bodega no tiene PIN configurado. Contacta al administrador.';
+    errEl.classList.add('show'); return;
+  }
+  if (pin !== pinCorrecto) {
+    errEl.textContent = '❌ PIN incorrecto. Intenta de nuevo.';
+    errEl.classList.add('show');
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus(); return;
+  }
+  // PIN correcto — entrar
+  errEl.classList.remove('show');
+  bodegaActiva = _bodegaSeleccionada;
+  bodegaActivaNombre = config.nombre || 'Bodega ' + _bodegaSeleccionada;
+  esAdmin = false;
+  entrarAlModulo();
+}
+
+function mostrarAdminLogin() {
+  _bodegaSeleccionada = null;
+  document.querySelectorAll('.bodega-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('pin-wrap').classList.remove('show');
+  document.getElementById('admin-pin-wrap').style.display = 'block';
+  document.getElementById('btn-ir-admin').style.display = 'none';
+  document.getElementById('sel-error').classList.remove('show');
+  document.getElementById('admin-pin-input').value = '';
+  setTimeout(() => document.getElementById('admin-pin-input').focus(), 100);
+}
+
+function verificarPinAdmin() {
+  const pin = document.getElementById('admin-pin-input').value.trim();
+  const errEl = document.getElementById('sel-error');
+  // Leer pin maestro de Firebase o usar default
+  db.ref('configuracion/pinMaestro').once('value', snap => {
+    const pinMaestro = snap.exists() ? snap.val() : PIN_MAESTRO_DEFAULT;
+    if (pin !== pinMaestro) {
+      errEl.textContent = '❌ PIN maestro incorrecto.';
+      errEl.classList.add('show');
+      document.getElementById('admin-pin-input').value = '';
+      document.getElementById('admin-pin-input').focus(); return;
+    }
+    errEl.classList.remove('show');
+    bodegaActiva = null;
+    bodegaActivaNombre = '';
+    esAdmin = true;
+    entrarAlModulo();
+  });
+}
+
+function volverSeleccion() {
+  _bodegaSeleccionada = null;
+  // Resetear dropdown
+  const selectedEl = document.getElementById('dropdown-selected');
+  if (selectedEl) {
+    selectedEl.textContent = 'Selecciona una bodega...';
+    selectedEl.classList.add('placeholder');
+  }
+  document.getElementById('pin-wrap').classList.remove('show');
+  document.getElementById('admin-pin-wrap').style.display = 'none';
+  document.getElementById('btn-ir-admin').style.display = 'block';
+  document.getElementById('sel-error').classList.remove('show');
+  document.getElementById('pin-input').value = '';
+  document.getElementById('admin-pin-input').value = '';
+}
+
+function entrarAlModulo() {
+  document.getElementById('pantalla-seleccion').style.display = 'none';
+  // Header
+  if (esAdmin) {
+    document.getElementById('header-bodega-badge').textContent = 'Admin';
+    document.getElementById('header-bodega-nombre').textContent = 'Acceso completo';
+    document.getElementById('tab-admin').style.display = 'block';
+  } else {
+    document.getElementById('header-bodega-badge').textContent = 'Bodega ' + bodegaActiva;
+    document.getElementById('header-bodega-nombre').textContent = bodegaActivaNombre;
+    document.getElementById('tab-admin').style.display = 'none';
+  }
+  document.getElementById('header-bodega-info').style.display = 'flex';
+  document.getElementById('header-info-default').style.display = 'none';
+  // Cargar datos filtrados
+  cargarCatalogo();
+  if (esAdmin) cargarBodegasAdmin();
+}
+
+function cambiarBodega() {
+  bodegaActiva = null; esAdmin = false;
+  document.getElementById('pantalla-seleccion').style.display = 'flex';
+  document.getElementById('pin-wrap').classList.remove('show');
+  document.getElementById('admin-pin-wrap').style.display = 'none';
+  document.getElementById('btn-ir-admin').style.display = 'block';
+  document.getElementById('sel-error').classList.remove('show');
+  document.querySelectorAll('.bodega-btn').forEach(b => b.classList.remove('selected'));
+}
+
+// ═══════════════════════════════════════════════
+// ADMINISTRACIÓN DE BODEGAS
+// ═══════════════════════════════════════════════
+function cargarBodegasAdmin() {
+  db.ref('configuracion/bodegas').on('value', snap => {
+    const bodegas = snap.exists() ? snap.val() : {};
+    _bodegasCache = bodegas;
+    const lista = document.getElementById('adm-bodegas-lista');
+    if (!lista) return;
+    const keys = Object.keys(bodegas).sort();
+    if (keys.length === 0) {
+      lista.innerHTML = '<div class="empty">No hay bodegas configuradas aún.</div>'; return;
+    }
+    lista.innerHTML = keys.map(cod => {
+      const b = bodegas[cod];
+      return `<div class="admin-bodega-row">
+        <span class="admin-bodega-code">${cod}</span>
+        <input class="admin-pin-field" id="adm-nombre-${cod}" value="${b.nombre||''}" placeholder="Nombre bodega" style="flex:2;"/>
+        <input class="admin-pin-field" id="adm-pin-${cod}" value="${b.pin||''}" placeholder="PIN" style="flex:1;"/>
+        <button onclick="actualizarBodega('${cod}')" style="padding:6px 14px;background:#0D2137;color:#4ECCA3;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Guardar</button>
+        <button onclick="eliminarBodega('${cod}')" style="padding:6px 12px;background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Eliminar</button>
+      </div>`;
+    }).join('');
+  });
+}
+
+function crearBodega() {
+  const cod = document.getElementById('adm-nuevo-codigo').value.trim().toUpperCase();
+  const nombre = document.getElementById('adm-nuevo-nombre').value.trim();
+  const pin = document.getElementById('adm-nuevo-pin').value.trim();
+  const alertEl = document.getElementById('adm-alert-crear');
+  if (!cod || !nombre || !pin) {
+    alertEl.textContent = '⚠️ Completa todos los campos.';
+    alertEl.className = 'alert alert-warn show'; return;
+  }
+  db.ref('configuracion/bodegas/' + cod).once('value', snap => {
+    if (snap.exists()) {
+      alertEl.textContent = '❌ Ya existe una bodega con ese código.';
+      alertEl.className = 'alert alert-error show'; return;
+    }
+    db.ref('configuracion/bodegas/' + cod).set({ nombre, pin, activa:true }).then(() => {
+      alertEl.textContent = '✅ Bodega creada correctamente.';
+      alertEl.className = 'alert alert-success show';
+      document.getElementById('adm-nuevo-codigo').value = '';
+      document.getElementById('adm-nuevo-nombre').value = '';
+      document.getElementById('adm-nuevo-pin').value = '';
+    });
+  });
+}
+
+function actualizarBodega(cod) {
+  const nombre = document.getElementById('adm-nombre-' + cod).value.trim();
+  const pin = document.getElementById('adm-pin-' + cod).value.trim();
+  if (!nombre || !pin) return;
+  db.ref('configuracion/bodegas/' + cod).update({ nombre, pin }).then(() => {
+    showAlert('adm-alert-crear', '✅ Bodega ' + cod + ' actualizada.', 'success');
+    document.getElementById('adm-alert-crear').classList.add('show');
+  });
+}
+
+function eliminarBodega(cod) {
+  if (!confirm('¿Eliminar la bodega ' + cod + '? Los artículos del catálogo no se borran.')) return;
+  db.ref('configuracion/bodegas/' + cod).remove().then(() => {
+    showAlert('adm-alert-crear', '✅ Bodega ' + cod + ' eliminada.', 'success');
+    document.getElementById('adm-alert-crear').classList.add('show');
+  });
+}
+
+function cambiarPinMaestro() {
+  const nuevoPin = document.getElementById('adm-nuevo-pin-maestro').value.trim();
+  const alertEl = document.getElementById('adm-alert-pin-maestro');
+  if (!nuevoPin) { alertEl.textContent = '⚠️ Ingresa el nuevo PIN.'; alertEl.className = 'alert alert-warn show'; return; }
+  db.ref('configuracion/pinMaestro').set(nuevoPin).then(() => {
+    alertEl.textContent = '✅ PIN maestro actualizado correctamente.';
+    alertEl.className = 'alert alert-success show';
+    document.getElementById('adm-nuevo-pin-maestro').value = '';
+  });
+}
+
 // ── TABS ──
 function showTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1003,7 +1444,10 @@ function cargarCatalogo() {
     }
  
     const data = snap.val();
-    const arts = Object.values(data).sort((a,b) => (b.fechaActualizacion||0) - (a.fechaActualizacion||0));
+    const todosArts = Object.values(data);
+    const arts = esAdmin
+      ? todosArts.sort((a,b) => (b.fechaActualizacion||0) - (a.fechaActualizacion||0))
+      : todosArts.filter(a => a.bodega && a.bodega.trim() === bodegaActiva).sort((a,b) => (b.fechaActualizacion||0) - (a.fechaActualizacion||0));
     let conCaja = 0, sinCaja = 0, ultimaFecha = null;
  
     arts.forEach(a => {
@@ -1089,8 +1533,8 @@ function toggleDashTop() {
   renderDashTop(window._dashTopArts || [], window._dashTopExpandido);
 }
 
-// Iniciar carga al abrir
-cargarCatalogo();
+// La carga se inicia desde entrarAlModulo() después de la selección de bodega
+inicializarBodegas();
 </script>
 </body>
 </html>
