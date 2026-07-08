@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Importar ABC — Inventario Config</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.card{background:#fff;border:1.5px solid #cbd5e1;border-radius:16px;padding:36px;max-width:560px;width:100%;box-shadow:0 4px 16px rgba(13,33,55,.10);}
+.header{background:#0D2137;border-radius:10px;padding:14px 18px;margin-bottom:24px;}
+.header-brand{font-size:9px;color:#4ECCA3;font-weight:700;letter-spacing:2px;}
+.header-title{font-size:14px;color:#fff;font-weight:600;}
+h2{font-size:16px;font-weight:700;color:#0D2137;margin-bottom:6px;}
+.sub{font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.5;}
+.zona{border:2px dashed #cbd5e1;border-radius:10px;padding:28px;margin-bottom:20px;cursor:pointer;transition:border-color .2s;text-align:center;}
+.zona:hover{border-color:#4ECCA3;}
+input[type=file]{display:none;}
+.btn{width:100%;padding:13px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;display:none;}
+.btn:disabled{background:#cbd5e1;color:#94a3b8;cursor:not-allowed;}
+.progress{background:#f1f5f9;border-radius:8px;height:10px;margin:14px 0;overflow:hidden;display:none;}
+.bar{height:100%;background:#4ECCA3;transition:width .3s;width:0%;}
+.status{font-size:13px;color:#0D2137;margin-top:10px;min-height:20px;font-weight:600;text-align:center;}
+.log{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:14px;font-size:11px;color:#475569;max-height:160px;overflow-y:auto;display:none;font-family:monospace;margin-top:12px;line-height:1.7;}
+.dist{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin:12px 0;display:none;}
+.dist-item{background:#f8fafc;border-radius:8px;padding:10px;text-align:center;border:1.5px solid #e2e8f0;}
+.dist-clase{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;}
+.dist-count{font-size:22px;font-weight:700;color:#0D2137;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="header-brand">AEL MÓDULOS</div>
+    <div class="header-title">Importar Clasificación ABC</div>
+  </div>
+  <h2>Cargar ABC al catálogo</h2>
+  <p class="sub">Selecciona el archivo <strong>ABC.xlsx</strong>. El sistema actualiza el campo <code>claseABC</code> de cada artículo en Firebase sin borrar ningún otro dato (rotación, caja máster, etc.).</p>
+
+  <div class="zona" onclick="document.getElementById('fileInput').click()">
+    <div style="color:#64748b;font-size:13px;">📂 Haz clic para seleccionar <strong>ABC.xlsx</strong></div>
+  </div>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="leerExcel(this)"/>
+
+  <div class="dist" id="dist">
+    <div class="dist-item"><div class="dist-clase">Clase A</div><div class="dist-count" id="cnt-a">—</div></div>
+    <div class="dist-item"><div class="dist-clase">Clase B</div><div class="dist-count" id="cnt-b">—</div></div>
+    <div class="dist-item"><div class="dist-clase">Clase C</div><div class="dist-count" id="cnt-c">—</div></div>
+    <div class="dist-item"><div class="dist-clase">Clase Z</div><div class="dist-count" id="cnt-z">—</div></div>
+  </div>
+
+  <div class="status" id="status"></div>
+  <button class="btn" id="btn" onclick="importarABC()">▶ Importar ABC a Firebase</button>
+  <div class="progress" id="prog"><div class="bar" id="bar"></div></div>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBbPQnG5h7zWIS284c1Epfplyf1W0tQOro",
+  authDomain: "inventario-config-mayoreo.firebaseapp.com",
+  databaseURL: "https://inventario-config-mayoreo-default-rtdb.firebaseio.com",
+  projectId: "inventario-config-mayoreo",
+  storageBucket: "inventario-config-mayoreo.firebasestorage.app",
+  messagingSenderId: "1038871465798",
+  appId: "1:1038871465798:web:826d9b27016c2ef9011f47"
+});
+const db = firebase.database();
+let DATOS = null;
+
+function leerExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('status').textContent = '⏳ Leyendo archivo...';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets['Hoja1'] || wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:['codigo','descripcion','bodega','clase'], range:1});
+      DATOS = {};
+      const conteo = {A:0,B:0,C:0,Z:0};
+      rows.forEach(row => {
+        if (!row.codigo) return;
+        const codigo = String(parseInt(row.codigo)).trim();
+        const clase = String(row.clase || 'Z').trim().toUpperCase();
+        DATOS[codigo] = clase;
+        conteo[clase] = (conteo[clase] || 0) + 1;
+      });
+      const total = Object.keys(DATOS).length;
+      document.getElementById('cnt-a').textContent = conteo.A || 0;
+      document.getElementById('cnt-b').textContent = conteo.B || 0;
+      document.getElementById('cnt-c').textContent = conteo.C || 0;
+      document.getElementById('cnt-z').textContent = conteo.Z || 0;
+      document.getElementById('dist').style.display = 'grid';
+      document.getElementById('status').textContent = '✅ ' + total.toLocaleString() + ' artículos listos. Presiona el botón para importar.';
+      document.getElementById('btn').style.display = 'block';
+    } catch(e) {
+      document.getElementById('status').textContent = '❌ Error: ' + e.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function importarABC() {
+  if (!DATOS) return;
+  const btn = document.getElementById('btn');
+  const log = document.getElementById('log');
+  const status = document.getElementById('status');
+  const prog = document.getElementById('prog');
+  const bar = document.getElementById('bar');
+  btn.disabled = true;
+  btn.textContent = 'Verificando catálogo...';
+  prog.style.display = 'block';
+  log.style.display = 'block';
+
+  // PASO 1: Leer qué códigos existen en Firebase
+  status.textContent = '⏳ Verificando artículos existentes en Firebase...';
+  log.innerHTML += '🔍 Leyendo catálogo actual de Firebase...\n';
+  const snapCat = await db.ref('inventarioConfig').once('value');
+  if (!snapCat.exists()) {
+    status.textContent = '❌ El catálogo de Firebase está vacío.'; return;
+  }
+  const existentes = new Set(Object.keys(snapCat.val()));
+  const codigosABC = Object.keys(DATOS);
+  const coinciden = codigosABC.filter(c => existentes.has(c));
+  const ignorados = codigosABC.length - coinciden.length;
+
+  log.innerHTML += '✅ Catálogo: ' + existentes.size.toLocaleString() + ' artículos\n';
+  log.innerHTML += '✅ Coinciden con ABC: ' + coinciden.length.toLocaleString() + '\n';
+  log.innerHTML += '⚠️ Ignorados (no existen en catálogo): ' + ignorados.toLocaleString() + '\n';
+  log.scrollTop = log.scrollHeight;
+
+  // PASO 2: Actualizar solo los que existen
+  const total = coinciden.length;
+  const LOTE = 300;
+  let procesados = 0, errores = 0;
+  btn.textContent = 'Importando...';
+
+  for (let i = 0; i < total; i += LOTE) {
+    const lote = coinciden.slice(i, i + LOTE);
+    const updates = {};
+    lote.forEach(cod => {
+      updates['inventarioConfig/' + cod + '/claseABC'] = DATOS[cod];
+    });
+    try {
+      await db.ref().update(updates);
+      procesados += lote.length;
+    } catch(e) {
+      errores += lote.length;
+      log.innerHTML += '❌ Error lote ' + Math.floor(i/LOTE+1) + ': ' + e.message + '\n';
+    }
+    const pct = Math.round((i + lote.length) / total * 100);
+    bar.style.width = pct + '%';
+    status.textContent = 'Actualizando: ' + procesados.toLocaleString() + ' / ' + total.toLocaleString() + ' (' + pct + '%)';
+    log.innerHTML += '✅ Lote ' + (Math.floor(i/LOTE)+1) + ': artículos ' + (i+1) + '-' + Math.min(i+LOTE,total) + ' OK\n';
+    log.scrollTop = log.scrollHeight;
+    await new Promise(r => setTimeout(r, 80));
+  }
+
+  if (errores === 0) {
+    status.textContent = '✅ ¡Listo! ' + procesados.toLocaleString() + ' artículos actualizados · ' + ignorados + ' ignorados (no estaban en catálogo).';
+    btn.textContent = '✅ Completado';
+    btn.style.background = '#15803d';
+    btn.style.color = '#fff';
+  } else {
+    status.textContent = '⚠️ ' + procesados + ' OK · ' + errores + ' con error.';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
