@@ -172,6 +172,43 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 .admin-pin-field{background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:6px;padding:6px 12px;font-size:13px;font-weight:600;color:#0D2137;width:160px;outline:none;}
 .admin-pin-field:focus{border-color:#0D2137;}
 
+
+/* ── TRASLADOS ── */
+.traslado-result{background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 6px rgba(13,33,55,.07);}
+.traslado-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.traslado-codigo{font-family:monospace;font-weight:700;color:#0D2137;font-size:15px;}
+.traslado-desc{font-size:12px;color:#64748b;margin-top:2px;}
+.traslado-meta{display:flex;gap:8px;flex-wrap:wrap;}
+.traslado-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;}
+.badge-a{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;}
+.badge-b{background:#fffbeb;color:#92400e;border:1px solid #fcd34d;}
+.badge-c{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+.badge-z{background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;}
+.traslado-grid{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1.5px solid #f1f5f9;}
+.traslado-col{padding:14px 16px;border-right:1px solid #f1f5f9;}
+.traslado-col:last-child{border-right:none;}
+.traslado-col-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:6px;}
+.traslado-col-uds{font-size:22px;font-weight:700;color:#0D2137;}
+.traslado-col-cajas{font-size:12px;color:#475569;margin-top:2px;}
+.traslado-col-dias{font-size:12px;font-weight:600;margin-top:4px;}
+.traslado-facturable .traslado-col-uds{color:#085041;}
+.traslado-acopio .traslado-col-uds{color:#1d4ed8;}
+.traslado-footer{padding:10px 16px;border-top:1.5px solid #f1f5f9;font-size:12px;display:flex;align-items:center;gap:8px;}
+.alert-opt{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;}
+.alert-opt.rojo{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;}
+.alert-opt.amarillo{background:#fffbeb;color:#92400e;border:1px solid #fcd34d;}
+.alert-opt.naranja{background:#fff7ed;color:#c2410c;border:1px solid #fdba74;}
+.alert-opt.verde{background:#f0fdf4;color:#15803d;border:1px solid #86efac;}
+.alert-opt.gris{background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;}
+.traslado-lista-header{background:#0D2137;display:grid;grid-template-columns:100px 1fr 60px 130px 130px 130px 100px;padding:10px 16px;gap:8px;border-radius:10px 10px 0 0;}
+.traslado-lista-header span{font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.traslado-lista-row{display:grid;grid-template-columns:100px 1fr 60px 130px 130px 130px 100px;padding:10px 16px;gap:8px;border-bottom:1px solid #f1f5f9;align-items:center;}
+.traslado-lista-row:last-child{border-bottom:none;}
+.traslado-lista-row:nth-child(even){background:#fafafa;}
+@media(max-width:768px){
+  .traslado-grid{grid-template-columns:1fr;}
+  .traslado-col{border-right:none;border-bottom:1px solid #f1f5f9;}
+}
 </style>
 </head>
 <body>
@@ -238,6 +275,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   <div class="tab" onclick="showTab('maxmin')">Máximos y Mínimos</div>
   <div class="tab" onclick="showTab('cobertura')">Meses de Inventario</div>
   <div class="tab" onclick="showTab('catalogo')">Catálogo de Productos</div>
+  <div class="tab" onclick="showTab('traslados')" id="tab-traslados" style="display:none;">📦 Traslados</div>
   <div class="tab" id="tab-admin" onclick="showTab('admin')" style="display:none;color:#f59e0b;">⚙ Administración</div>
 </div>
  
@@ -558,6 +596,142 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 </div>
  
 <!-- ══════════════════════════════════════════ -->
+<!-- TAB: TRASLADOS                             -->
+<!-- ══════════════════════════════════════════ -->
+<div id="page-traslados" class="page">
+
+  <!-- RESUMEN ABC -->
+  <div style="margin-bottom:20px;">
+    <div class="section-title">Clasificación ABC de la bodega</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;" id="traslados-abc-cards">
+      <div class="dash-card" style="border-top-color:#ef4444;">
+        <div class="dash-label">Clase A — 80%</div>
+        <div class="dash-value" id="abc-a-count">—</div>
+        <div class="dash-sub" id="abc-a-pct">artículos · colchón 60d</div>
+      </div>
+      <div class="dash-card warn">
+        <div class="dash-label">Clase B — 15%</div>
+        <div class="dash-value" id="abc-b-count">—</div>
+        <div class="dash-sub" id="abc-b-pct">artículos · colchón 30d</div>
+      </div>
+      <div class="dash-card info">
+        <div class="dash-label">Clase C — 4%</div>
+        <div class="dash-value" id="abc-c-count">—</div>
+        <div class="dash-sub" id="abc-c-pct">artículos · colchón 15d</div>
+      </div>
+      <div class="dash-card muted">
+        <div class="dash-label">Clase Z — sin rotación</div>
+        <div class="dash-value" id="abc-z-count">—</div>
+        <div class="dash-sub">artículos · sin colchón</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULARIO INGRESO -->
+  <div class="form-card" style="margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-group">
+        <label>Código de Artículo</label>
+        <input type="text" id="tr-codigo" placeholder="Ej: 7186" oninput="buscarArticuloTraslado()" style="border-color:#0D2137;font-weight:700;"/>
+      </div>
+      <div class="form-group">
+        <label>Saldo Actual (uds)</label>
+        <input type="number" id="tr-saldo" placeholder="0" min="0" oninput="calcularTraslado()"/>
+      </div>
+      <div class="form-group">
+        <label>Días de colchón en Acopio <span id="tr-clase-badge" style="margin-left:4px;"></span></label>
+        <input type="number" id="tr-dias-colchon" placeholder="60" min="0" oninput="calcularTraslado()" style="border-color:#1D9E75;"/>
+      </div>
+      <button onclick="agregarALista()" style="padding:10px 18px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;height:42px;white-space:nowrap;">+ Agregar</button>
+    </div>
+
+    <!-- Info del artículo -->
+    <div id="tr-info-articulo" style="display:none;margin-top:12px;padding:12px 14px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;display:none;">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+        <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Descripción</span><br><strong style="font-size:13px;color:#0D2137;" id="tr-desc">—</strong></div>
+        <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Rotación/mes</span><br><strong style="font-size:13px;color:#0D2137;" id="tr-rotacion">—</strong></div>
+        <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Consumo/día</span><br><strong style="font-size:13px;color:#0D2137;" id="tr-consumo">—</strong></div>
+        <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Máximo config.</span><br><strong style="font-size:13px;color:#085041;" id="tr-maximo">—</strong></div>
+        <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Caja Máster</span><br><strong style="font-size:13px;color:#0D2137;" id="tr-caja">—</strong></div>
+      </div>
+    </div>
+
+    <div id="tr-alert" class="alert" style="margin-top:10px;"></div>
+
+    <!-- Resultado del cálculo actual -->
+    <div id="tr-resultado-actual" style="display:none;margin-top:14px;">
+      <div class="traslado-result">
+        <div class="traslado-header">
+          <div>
+            <div class="traslado-codigo" id="tr-r-codigo">—</div>
+            <div class="traslado-desc" id="tr-r-desc">—</div>
+          </div>
+          <div class="traslado-meta">
+            <span class="traslado-badge" id="tr-r-clase">—</span>
+            <span class="traslado-badge badge-ok" id="tr-r-bodega">—</span>
+          </div>
+        </div>
+        <div class="traslado-grid">
+          <div class="traslado-col traslado-facturable">
+            <div class="traslado-col-label">🏭 Bodega Facturable</div>
+            <div class="traslado-col-uds" id="tr-r-fact-uds">—</div>
+            <div class="traslado-col-cajas" id="tr-r-fact-cajas">—</div>
+            <div class="traslado-col-dias" style="color:#085041;" id="tr-r-fact-dias">—</div>
+          </div>
+          <div class="traslado-col traslado-acopio">
+            <div class="traslado-col-label">📦 Centro de Acopio</div>
+            <div class="traslado-col-uds" id="tr-r-acopio-uds">—</div>
+            <div class="traslado-col-cajas" id="tr-r-acopio-cajas">—</div>
+            <div class="traslado-col-dias" style="color:#1d4ed8;" id="tr-r-acopio-dias">—</div>
+          </div>
+          <div class="traslado-col">
+            <div class="traslado-col-label">📊 Totales</div>
+            <div class="traslado-col-uds" id="tr-r-total-uds">—</div>
+            <div class="traslado-col-cajas" id="tr-r-total-cajas">—</div>
+            <div class="traslado-col-dias" id="tr-r-total-dias">—</div>
+          </div>
+        </div>
+        <div class="traslado-footer">
+          <span id="tr-r-alerta" class="alert-opt">—</span>
+          <span id="tr-r-excedente" style="font-size:11px;color:#94a3b8;"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA ACUMULADA DE TRASLADOS -->
+  <div id="traslados-lista-wrap" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin-bottom:0;">Lista de traslados</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="imprimirTraslados()" style="padding:8px 16px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Imprimir</button>
+        <button onclick="limpiarListaTraslados()" style="padding:8px 16px;background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">✕ Limpiar lista</button>
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:800px;">
+          <thead>
+            <tr style="background:#0D2137;">
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Código</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Descripción</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Clase</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:right;">Saldo Total</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:right;">En Facturable</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:right;">A Centro Acopio</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Días Total</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Estado</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;"></th>
+            </tr>
+          </thead>
+          <tbody id="traslados-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
 <!-- TAB: ADMINISTRACIÓN                        -->
 <!-- ══════════════════════════════════════════ -->
 <div id="page-admin" class="page">
@@ -818,10 +992,12 @@ function entrarAlModulo() {
     document.getElementById('header-bodega-badge').textContent = 'Admin';
     document.getElementById('header-bodega-nombre').textContent = 'Acceso completo';
     document.getElementById('tab-admin').style.display = 'block';
+    document.getElementById('tab-traslados').style.display = 'block';
   } else {
     document.getElementById('header-bodega-badge').textContent = 'Bodega ' + bodegaActiva;
     document.getElementById('header-bodega-nombre').textContent = bodegaActivaNombre;
     document.getElementById('tab-admin').style.display = 'none';
+    document.getElementById('tab-traslados').style.display = 'block';
   }
   document.getElementById('header-bodega-info').style.display = 'flex';
   document.getElementById('header-info-default').style.display = 'none';
@@ -925,6 +1101,8 @@ function showTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
   event.target.classList.add('active');
+  if (tab === 'traslados') cargarResumenABC();
+  if (tab === 'admin') cargarBodegasAdmin();
 }
  
 // ── UTILS ──
@@ -1535,6 +1713,317 @@ function toggleDashTop() {
 
 // La carga se inicia desde entrarAlModulo() después de la selección de bodega
 inicializarBodegas();
+
+// ═══════════════════════════════════════════════
+// PESTAÑA TRASLADOS
+// ═══════════════════════════════════════════════
+let _trArticulo = null;
+let _trTimer = null;
+let _trListaTraslados = [];
+let _trClasificacionABC = {};
+
+// Leer clasificación ABC desde Firebase (campo claseABC en cada artículo)
+function calcularABC(arts) {
+  const clasificacion = {};
+  arts.forEach(a => {
+    clasificacion[a.codigo] = a.claseABC || 'Z';
+  });
+  return clasificacion;
+}
+
+// Días de colchón sugeridos por clase
+function diasColchonSugerido(clase) {
+  return {A:60, B:30, C:15, Z:0}[clase] || 30;
+}
+
+// Cargar y mostrar resumen ABC cuando se entra a traslados
+function cargarResumenABC() {
+  db.ref('inventarioConfig').once('value', snap => {
+    if (!snap.exists()) return;
+    const todos = Object.values(snap.val());
+    // ABC aplica a todos sin importar bodega
+    _trClasificacionABC = calcularABC(todos);
+    const conteo = {A:0,B:0,C:0,Z:0};
+    todos.forEach(a => {
+      const cl = a.claseABC || 'Z';
+      conteo[cl] = (conteo[cl] || 0) + 1;
+    });
+    document.getElementById('abc-a-count').textContent = conteo.A || 0;
+    document.getElementById('abc-b-count').textContent = conteo.B || 0;
+    document.getElementById('abc-c-count').textContent = conteo.C || 0;
+    document.getElementById('abc-z-count').textContent = conteo.Z || 0;
+    document.getElementById('abc-a-pct').textContent = (conteo.A||0) + ' artículos · colchón sugerido 60d';
+    document.getElementById('abc-b-pct').textContent = (conteo.B||0) + ' artículos · colchón sugerido 30d';
+    document.getElementById('abc-c-pct').textContent = (conteo.C||0) + ' artículos · colchón sugerido 15d';
+  });
+}
+
+function buscarArticuloTraslado() {
+  clearTimeout(_trTimer);
+  const codigo = document.getElementById('tr-codigo').value.trim();
+  _trArticulo = null;
+  document.getElementById('tr-info-articulo').style.display = 'none';
+  document.getElementById('tr-resultado-actual').style.display = 'none';
+  hideAlert('tr-alert');
+  if (!codigo) return;
+  _trTimer = setTimeout(() => {
+    getArticulo(codigo, art => {
+      if (!art) { showAlert('tr-alert', '❌ Código no encontrado en catálogo.', 'error'); return; }
+      _trArticulo = art;
+      const cd = art.rotacionMensual / 30;
+      const clase = _trClasificacionABC[art.codigo] || '?';
+      const diasSugeridos = diasColchonSugerido(clase);
+
+      // Info artículo
+      document.getElementById('tr-desc').textContent = art.descripcion;
+      document.getElementById('tr-rotacion').textContent = fmt(art.rotacionMensual) + ' uds';
+      document.getElementById('tr-consumo').textContent = cd.toFixed(2) + ' uds/día';
+
+      // Máximo calculado — igual que Tab 1, sin piso de 2 cajas
+      let maxConfig = null;
+      if (art.cajaMaster && art.cajaMaster > 0) {
+        const maxCalc = cd * 30;
+        const maxEntero = Math.ceil(maxCalc);
+        const resto = maxEntero % art.cajaMaster;
+        maxConfig = resto === 0 ? maxEntero : maxEntero + (art.cajaMaster - resto);
+        if (maxConfig < art.cajaMaster) maxConfig = art.cajaMaster;
+      }
+      document.getElementById('tr-maximo').textContent = maxConfig ? fmt(maxConfig) + ' uds' : 'Sin configurar';
+      document.getElementById('tr-caja').textContent = art.cajaMaster ? fmt(art.cajaMaster) + ' uds' : '—';
+
+      // Badge de clase
+      const badgeClass = {A:'badge-a',B:'badge-b',C:'badge-c',Z:'badge-z'}[clase] || 'badge-z';
+      const claseLabel = {A:'Clase A',B:'Clase B',C:'Clase C',Z:'Clase Z'}[clase] || 'Sin clase';
+      document.getElementById('tr-clase-badge').innerHTML = `<span class="traslado-badge ${badgeClass}">${claseLabel}</span>`;
+
+      // Pre-llenar días de colchón sugerido
+      document.getElementById('tr-dias-colchon').value = diasSugeridos;
+
+      document.getElementById('tr-info-articulo').style.display = 'block';
+      calcularTraslado();
+    });
+  }, 400);
+}
+
+function ajustarMultiploTraslado(val, caja) {
+  if (!caja || caja <= 0) return val;
+  const resto = val % caja;
+  return resto === 0 ? val : val + (caja - resto);
+}
+
+function calcularTraslado() {
+  if (!_trArticulo) return;
+  const saldo = parseFloat(document.getElementById('tr-saldo').value);
+  const diasColchon = parseFloat(document.getElementById('tr-dias-colchon').value) || 0;
+  if (isNaN(saldo) || saldo < 0) return;
+
+  const art = _trArticulo;
+  const cm = art.cajaMaster || 0;
+  const cd = art.rotacionMensual / 30;
+  const clase = _trClasificacionABC[art.codigo] || '?';
+
+  // Calcular máximo configurado
+  // CORRECCIÓN: no aplicar piso de cm*2 — el máximo es el ajustado exacto
+  // igual a como lo calcula Tab 1 (Máximos y Mínimos)
+  let maximoConfig = 0;
+  if (cm > 0) {
+    const maxCalc = cd * 30;
+    const maxEntero = Math.ceil(maxCalc);
+    const resto = maxEntero % cm;
+    maximoConfig = resto === 0 ? maxEntero : maxEntero + (cm - resto);
+    // Si el resultado es menor a 1 caja, usar 1 caja como mínimo
+    if (maximoConfig < cm) maximoConfig = cm;
+  }
+
+  // REGLA BASE: facturable = máximo config
+  const saldoFacturable = Math.min(saldo, maximoConfig);
+  const excedente = Math.max(0, saldo - maximoConfig);
+
+  // Colchón ideal en acopio
+  const colchonIdealRaw = cd * diasColchon;
+  const colchonIdeal = cm > 0 ? ajustarMultiploTraslado(Math.ceil(colchonIdealRaw), cm) : Math.ceil(colchonIdealRaw);
+
+  // Saldo en acopio
+  const saldoAcopio = Math.min(excedente, colchonIdeal);
+  const excedentePuro = Math.max(0, excedente - colchonIdeal);
+  const totalAcopio = saldoAcopio + excedentePuro;
+
+  // Días de cobertura
+  const diasFact = cd > 0 ? saldoFacturable / cd : 0;
+  const diasAcopio = cd > 0 ? totalAcopio / cd : 0;
+  const diasTotal = diasFact + diasAcopio;
+
+  // Estado
+  let estadoClass = 'verde', estadoMsg = '✅ Distribución óptima';
+  if (saldo < maximoConfig) {
+    estadoClass = 'rojo';
+    estadoMsg = '🔴 Picking deficitario — requiere reabastecimiento urgente';
+  } else if (clase === 'Z') {
+    estadoClass = 'gris';
+    estadoMsg = '⚪ Sin rotación — revisar obsolescencia';
+  } else if (diasAcopio < diasColchonSugerido(clase) * 0.5) {
+    estadoClass = 'amarillo';
+    estadoMsg = '🟡 Colchón por debajo del 50% del ideal (' + diasColchonSugerido(clase) + 'd)';
+  } else if (diasAcopio < diasColchonSugerido(clase) * 0.8) {
+    estadoClass = 'naranja';
+    estadoMsg = '🟠 Colchón por debajo del ideal — monitorear';
+  }
+
+  // Mostrar resultado
+  const badgeClass = {A:'badge-a',B:'badge-b',C:'badge-c',Z:'badge-z'}[clase] || 'badge-z';
+  document.getElementById('tr-r-codigo').textContent = art.codigo;
+  document.getElementById('tr-r-desc').textContent = art.descripcion;
+  document.getElementById('tr-r-clase').className = 'traslado-badge ' + badgeClass;
+  document.getElementById('tr-r-clase').textContent = 'Clase ' + clase;
+  document.getElementById('tr-r-bodega').textContent = 'Bodega ' + (art.bodega || '—');
+
+  document.getElementById('tr-r-fact-uds').textContent = fmt(saldoFacturable) + ' uds';
+  document.getElementById('tr-r-fact-cajas').textContent = cm > 0 ? fmt(Math.floor(saldoFacturable/cm)) + ' cajas' : '';
+  document.getElementById('tr-r-fact-dias').textContent = cd > 0 ? diasFact.toFixed(1) + ' días de cobertura' : '—';
+
+  document.getElementById('tr-r-acopio-uds').textContent = fmt(totalAcopio) + ' uds';
+  document.getElementById('tr-r-acopio-cajas').textContent = cm > 0 ? fmt(Math.floor(totalAcopio/cm)) + ' cajas' : '';
+  document.getElementById('tr-r-acopio-dias').textContent = cd > 0 ? diasAcopio.toFixed(1) + ' días de cobertura' : '—';
+
+  document.getElementById('tr-r-total-uds').textContent = fmt(saldo) + ' uds';
+  document.getElementById('tr-r-total-cajas').textContent = cm > 0 ? fmt(Math.floor(saldo/cm)) + ' cajas' : '';
+  document.getElementById('tr-r-total-dias').textContent = cd > 0 ? diasTotal.toFixed(1) + ' días totales' : '—';
+
+  document.getElementById('tr-r-alerta').className = 'alert-opt ' + estadoClass;
+  document.getElementById('tr-r-alerta').textContent = estadoMsg;
+
+  const excMsg = excedentePuro > 0
+    ? fmt(excedentePuro) + ' uds adicionales sobre el colchón ideal también en acopio'
+    : '';
+  document.getElementById('tr-r-excedente').textContent = excMsg;
+
+  document.getElementById('tr-resultado-actual').style.display = 'block';
+
+  // Guardar para agregar a lista
+  _trArticulo._calcResult = {
+    saldo, saldoFacturable, totalAcopio, diasFact, diasAcopio, diasTotal,
+    clase, estadoClass, estadoMsg, cm, cd, maximoConfig, diasColchon
+  };
+}
+
+function agregarALista() {
+  if (!_trArticulo || !_trArticulo._calcResult) {
+    showAlert('tr-alert', '⚠️ Primero ingresa un código y saldo válidos.', 'warn'); return;
+  }
+  const r = _trArticulo._calcResult;
+  const art = _trArticulo;
+
+  // Verificar si ya está en la lista
+  const idx = _trListaTraslados.findIndex(t => t.codigo === art.codigo);
+  if (idx >= 0) _trListaTraslados.splice(idx, 1);
+
+  _trListaTraslados.push({
+    codigo: art.codigo,
+    descripcion: art.descripcion,
+    clase: r.clase,
+    saldo: r.saldo,
+    saldoFacturable: r.saldoFacturable,
+    totalAcopio: r.totalAcopio,
+    diasTotal: r.diasTotal,
+    estadoClass: r.estadoClass,
+    estadoMsg: r.estadoMsg,
+    cm: r.cm,
+  });
+
+  renderListaTraslados();
+
+  // Limpiar para siguiente artículo
+  document.getElementById('tr-codigo').value = '';
+  document.getElementById('tr-saldo').value = '';
+  document.getElementById('tr-dias-colchon').value = '';
+  document.getElementById('tr-info-articulo').style.display = 'none';
+  document.getElementById('tr-resultado-actual').style.display = 'none';
+  document.getElementById('tr-clase-badge').innerHTML = '';
+  _trArticulo = null;
+  document.getElementById('tr-codigo').focus();
+}
+
+function renderListaTraslados() {
+  const wrap = document.getElementById('traslados-lista-wrap');
+  const tbody = document.getElementById('traslados-tbody');
+  if (_trListaTraslados.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  tbody.innerHTML = _trListaTraslados.map((t,i) => {
+    const badgeClass = {A:'badge-a',B:'badge-b',C:'badge-c',Z:'badge-z'}[t.clase] || 'badge-z';
+    const cajasFact = t.cm > 0 ? ' (' + Math.floor(t.saldoFacturable/t.cm) + ' cj)' : '';
+    const cajasAcopio = t.cm > 0 ? ' (' + Math.floor(t.totalAcopio/t.cm) + ' cj)' : '';
+    const rowBg = i % 2 === 0 ? '' : 'background:#fafafa;';
+    return `<tr style="${rowBg}border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 14px;font-family:monospace;font-weight:700;color:#0D2137;font-size:13px;">${t.codigo}</td>
+      <td style="padding:10px 14px;font-size:12px;color:#334155;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${t.descripcion}">${t.descripcion}</td>
+      <td style="padding:10px 14px;text-align:center;"><span class="traslado-badge ${badgeClass}">${t.clase}</span></td>
+      <td style="padding:10px 14px;text-align:right;font-size:13px;color:#334155;">${fmt(t.saldo)}</td>
+      <td style="padding:10px 14px;text-align:right;font-size:13px;font-weight:700;color:#085041;">${fmt(t.saldoFacturable)}${cajasFact}</td>
+      <td style="padding:10px 14px;text-align:right;font-size:13px;font-weight:700;color:#1d4ed8;">${fmt(t.totalAcopio)}${cajasAcopio}</td>
+      <td style="padding:10px 14px;text-align:center;font-size:12px;color:#475569;">${t.diasTotal.toFixed(1)}d</td>
+      <td style="padding:10px 14px;text-align:center;"><span class="alert-opt ${t.estadoClass}" style="font-size:10px;">${
+        {verde:'✅ Óptimo',amarillo:'🟡 Bajo',naranja:'🟠 Monitorear',rojo:'🔴 Déficit',gris:'⚪ Sin rot.'}[t.estadoClass]||'—'
+      }</span></td>
+      <td style="padding:10px 14px;"><button onclick="quitarDeListaTraslados(${i})" style="padding:4px 10px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function quitarDeListaTraslados(idx) {
+  _trListaTraslados.splice(idx, 1);
+  renderListaTraslados();
+}
+
+function limpiarListaTraslados() {
+  if (!confirm('¿Limpiar toda la lista de traslados?')) return;
+  _trListaTraslados = [];
+  renderListaTraslados();
+}
+
+function imprimirTraslados() {
+  const bodegaInfo = esAdmin ? 'Administrador' : 'Bodega ' + bodegaActiva + (bodegaActivaNombre ? ' — ' + bodegaActivaNombre : '');
+  const fecha = new Date().toLocaleDateString('es-CR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const filas = _trListaTraslados.map(t => {
+    const cajasFact = t.cm > 0 ? Math.floor(t.saldoFacturable/t.cm) : '—';
+    const cajasAcopio = t.cm > 0 ? Math.floor(t.totalAcopio/t.cm) : '—';
+    return `<tr>
+      <td>${t.codigo}</td>
+      <td>${t.descripcion}</td>
+      <td style="text-align:center;">${t.clase}</td>
+      <td style="text-align:right;">${fmt(t.saldo)}</td>
+      <td style="text-align:right;">${fmt(t.saldoFacturable)} (${cajasFact} cj)</td>
+      <td style="text-align:right;">${fmt(t.totalAcopio)} (${cajasAcopio} cj)</td>
+      <td style="text-align:center;">${t.diasTotal.toFixed(1)}d</td>
+    </tr>`;
+  }).join('');
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Lista de Traslados</title>
+  <style>
+    body{font-family:'Segoe UI',sans-serif;padding:24px;color:#1e293b;}
+    h2{color:#0D2137;margin-bottom:4px;}
+    .meta{color:#64748b;font-size:13px;margin-bottom:20px;}
+    table{width:100%;border-collapse:collapse;font-size:12px;}
+    thead th{background:#0D2137;color:#4ECCA3;padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;}
+    tbody td{padding:8px 12px;border-bottom:1px solid #f1f5f9;}
+    tbody tr:nth-child(even){background:#f8fafc;}
+    .footer{margin-top:20px;font-size:11px;color:#94a3b8;}
+  </style></head><body>
+  <h2>Lista de Traslados — Centro de Acopio</h2>
+  <div class="meta">${bodegaInfo} &nbsp;·&nbsp; ${fecha} &nbsp;·&nbsp; ${_trListaTraslados.length} artículos</div>
+  <table>
+    <thead><tr>
+      <th>Código</th><th>Descripción</th><th>Clase</th>
+      <th>Saldo Total</th><th>En Facturable</th><th>A Acopio</th><th>Días total</th>
+    </tr></thead>
+    <tbody>${filas}</tbody>
+  </table>
+  <div class="footer">Generado por AEL MÓDULOS — Configuración de Inventario</div>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`);
+  win.document.close();
+}
 </script>
 </body>
 </html>
