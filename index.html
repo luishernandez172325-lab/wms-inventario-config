@@ -600,30 +600,38 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 <!-- ══════════════════════════════════════════ -->
 <div id="page-traslados" class="page">
 
-  <!-- RESUMEN ABC -->
+  <!-- LISTA ABC FILTRABLE -->
   <div style="margin-bottom:20px;">
-    <div class="section-title">Clasificación ABC de la bodega</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;" id="traslados-abc-cards">
-      <div class="dash-card" style="border-top-color:#ef4444;">
-        <div class="dash-label">Clase A — 80%</div>
-        <div class="dash-value" id="abc-a-count">—</div>
-        <div class="dash-sub" id="abc-a-pct">artículos · colchón 60d</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+      <div class="section-title" style="margin-bottom:0;">Clasificación ABC — Bodega activa</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:11px;color:#64748b;">Filtrar:</span>
+        <button onclick="filtrarABC('todos')" id="filtro-todos" style="padding:5px 14px;background:#0D2137;color:#4ECCA3;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Todos</button>
+        <button onclick="filtrarABC('A')" id="filtro-a" style="padding:5px 14px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase A</button>
+        <button onclick="filtrarABC('B')" id="filtro-b" style="padding:5px 14px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase B</button>
+        <button onclick="filtrarABC('C')" id="filtro-c" style="padding:5px 14px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase C</button>
+        <button onclick="filtrarABC('Z')" id="filtro-z" style="padding:5px 14px;background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase Z</button>
+        <input type="text" id="abc-buscar" placeholder="Buscar código o descripción..." oninput="filtrarABC()" style="padding:5px 12px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:12px;outline:none;min-width:200px;"/>
       </div>
-      <div class="dash-card warn">
-        <div class="dash-label">Clase B — 15%</div>
-        <div class="dash-value" id="abc-b-count">—</div>
-        <div class="dash-sub" id="abc-b-pct">artículos · colchón 30d</div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
+      <div style="overflow-x:auto;max-height:280px;overflow-y:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:500px;">
+          <thead style="position:sticky;top:0;z-index:2;">
+            <tr style="background:#0D2137;">
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Código</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Descripción</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Clase</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:right;">Rotación/mes</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="abc-lista-tbody">
+            <tr><td colspan="5"><div class="empty">Cargando...</div></td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="dash-card info">
-        <div class="dash-label">Clase C — 4%</div>
-        <div class="dash-value" id="abc-c-count">—</div>
-        <div class="dash-sub" id="abc-c-pct">artículos · colchón 15d</div>
-      </div>
-      <div class="dash-card muted">
-        <div class="dash-label">Clase Z — sin rotación</div>
-        <div class="dash-value" id="abc-z-count">—</div>
-        <div class="dash-sub">artículos · sin colchón</div>
-      </div>
+      <div style="padding:8px 14px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8;" id="abc-lista-count"></div>
     </div>
   </div>
 
@@ -639,8 +647,8 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <input type="number" id="tr-saldo" placeholder="0" min="0" oninput="calcularTraslado()"/>
       </div>
       <div class="form-group">
-        <label>Días de colchón en Acopio <span id="tr-clase-badge" style="margin-left:4px;"></span></label>
-        <input type="number" id="tr-dias-colchon" placeholder="60" min="0" oninput="calcularTraslado()" style="border-color:#1D9E75;"/>
+        <label>Días colchón bodega facturable <span id="tr-clase-badge" style="margin-left:4px;"></span></label>
+        <input type="number" id="tr-dias-colchon" placeholder="0" min="0" oninput="calcularTraslado()" style="border-color:#085041;"/>
       </div>
       <button onclick="agregarALista()" style="padding:10px 18px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;height:42px;white-space:nowrap;">+ Agregar</button>
     </div>
@@ -1737,25 +1745,84 @@ function diasColchonSugerido(clase) {
 }
 
 // Cargar y mostrar resumen ABC cuando se entra a traslados
+let _abcListaCompleta = [];
+let _abcFiltroActivo = 'todos';
+
 function cargarResumenABC() {
   db.ref('inventarioConfig').once('value', snap => {
     if (!snap.exists()) return;
     const todos = Object.values(snap.val());
     // ABC aplica a todos sin importar bodega
     _trClasificacionABC = calcularABC(todos);
-    const conteo = {A:0,B:0,C:0,Z:0};
-    todos.forEach(a => {
-      const cl = a.claseABC || 'Z';
-      conteo[cl] = (conteo[cl] || 0) + 1;
-    });
-    document.getElementById('abc-a-count').textContent = conteo.A || 0;
-    document.getElementById('abc-b-count').textContent = conteo.B || 0;
-    document.getElementById('abc-c-count').textContent = conteo.C || 0;
-    document.getElementById('abc-z-count').textContent = conteo.Z || 0;
-    document.getElementById('abc-a-pct').textContent = (conteo.A||0) + ' artículos · colchón sugerido 60d';
-    document.getElementById('abc-b-pct').textContent = (conteo.B||0) + ' artículos · colchón sugerido 30d';
-    document.getElementById('abc-c-pct').textContent = (conteo.C||0) + ' artículos · colchón sugerido 15d';
+    // Lista solo de la bodega activa
+    const artsBodega = esAdmin
+      ? todos
+      : todos.filter(a => a.bodega && a.bodega.trim() === bodegaActiva);
+    _abcListaCompleta = artsBodega
+      .map(a => ({
+        codigo: a.codigo,
+        descripcion: a.descripcion || '',
+        clase: a.claseABC || 'Z',
+        rotacion: a.rotacionMensual || 0
+      }))
+      .sort((a,b) => b.rotacion - a.rotacion);
+    _abcFiltroActivo = 'todos';
+    renderListaABC();
   });
+}
+
+function filtrarABC(clase) {
+  if (clase) _abcFiltroActivo = clase;
+  renderListaABC();
+}
+
+function renderListaABC() {
+  const tbody = document.getElementById('abc-lista-tbody');
+  const countEl = document.getElementById('abc-lista-count');
+  const buscar = (document.getElementById('abc-buscar').value || '').toLowerCase().trim();
+  if (!tbody) return;
+
+  let lista = _abcListaCompleta;
+  if (_abcFiltroActivo !== 'todos') lista = lista.filter(a => a.clase === _abcFiltroActivo);
+  if (buscar) lista = lista.filter(a =>
+    a.codigo.toLowerCase().includes(buscar) || a.descripcion.toLowerCase().includes(buscar)
+  );
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Sin artículos para este filtro.</div></td></tr>';
+    countEl.textContent = '';
+    return;
+  }
+
+  const LIMITE = 200;
+  const visibles = lista.slice(0, LIMITE);
+  const badgeClasses = {A:'badge-a',B:'badge-b',C:'badge-c',Z:'badge-z'};
+
+  tbody.innerHTML = visibles.map((a,i) => {
+    const bc = badgeClasses[a.clase] || 'badge-z';
+    const bg = i % 2 === 0 ? '' : 'background:#fafafa;';
+    return `<tr style="${bg}border-bottom:1px solid #f1f5f9;">
+      <td style="padding:9px 14px;font-family:monospace;font-weight:700;color:#0D2137;font-size:13px;">${a.codigo}</td>
+      <td style="padding:9px 14px;font-size:12px;color:#334155;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.descripcion}">${a.descripcion}</td>
+      <td style="padding:9px 14px;text-align:center;"><span class="traslado-badge ${bc}">${a.clase}</span></td>
+      <td style="padding:9px 14px;text-align:right;font-size:12px;color:#334155;">${fmt(a.rotacion)}</td>
+      <td style="padding:9px 14px;text-align:center;">
+        <button onclick="usarCodigoEnTraslado('${a.codigo}')" style="padding:4px 12px;background:#f0fdf4;color:#15803d;border:1px solid #86efac;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">→ Usar</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const resto = lista.length > LIMITE ? ` (mostrando ${LIMITE} de ${lista.length})` : '';
+  countEl.textContent = lista.length + ' artículos' + resto;
+}
+
+function usarCodigoEnTraslado(codigo) {
+  // Lleva el código al formulario de traslados y busca
+  document.getElementById('tr-codigo').value = codigo;
+  buscarArticuloTraslado();
+  // Scroll al formulario
+  document.getElementById('tr-codigo').scrollIntoView({behavior:'smooth', block:'center'});
+  document.getElementById('tr-saldo').focus();
 }
 
 function buscarArticuloTraslado() {
@@ -1797,7 +1864,7 @@ function buscarArticuloTraslado() {
       document.getElementById('tr-clase-badge').innerHTML = `<span class="traslado-badge ${badgeClass}">${claseLabel}</span>`;
 
       // Pre-llenar días de colchón sugerido
-      document.getElementById('tr-dias-colchon').value = diasSugeridos;
+      document.getElementById('tr-dias-colchon').value = 0;
 
       document.getElementById('tr-info-articulo').style.display = 'block';
       calcularTraslado();
@@ -1835,18 +1902,15 @@ function calcularTraslado() {
     if (maximoConfig < cm) maximoConfig = cm;
   }
 
-  // REGLA BASE: facturable = máximo config
-  const saldoFacturable = Math.min(saldo, maximoConfig);
-  const excedente = Math.max(0, saldo - maximoConfig);
-
-  // Colchón ideal en acopio
-  const colchonIdealRaw = cd * diasColchon;
-  const colchonIdeal = cm > 0 ? ajustarMultiploTraslado(Math.ceil(colchonIdealRaw), cm) : Math.ceil(colchonIdealRaw);
-
-  // Saldo en acopio
-  const saldoAcopio = Math.min(excedente, colchonIdeal);
-  const excedentePuro = Math.max(0, excedente - colchonIdeal);
-  const totalAcopio = saldoAcopio + excedentePuro;
+  // NUEVA LÓGICA:
+  // Bodega Facturable = Máximo (picking) + Colchón extra días × consumo diario
+  // Centro de Acopio  = Saldo - Bodega Facturable
+  const colchonRaw = cd * diasColchon;
+  const colchonAjustado = cm > 0
+    ? ajustarMultiploTraslado(Math.ceil(colchonRaw), cm)
+    : Math.ceil(colchonRaw);
+  const saldoFacturable = Math.min(saldo, maximoConfig + colchonAjustado);
+  const totalAcopio = Math.max(0, saldo - saldoFacturable);
 
   // Días de cobertura
   const diasFact = cd > 0 ? saldoFacturable / cd : 0;
@@ -1857,16 +1921,16 @@ function calcularTraslado() {
   let estadoClass = 'verde', estadoMsg = '✅ Distribución óptima';
   if (saldo < maximoConfig) {
     estadoClass = 'rojo';
-    estadoMsg = '🔴 Picking deficitario — requiere reabastecimiento urgente';
+    estadoMsg = '🔴 Picking deficitario — requiere reabastecimiento antes del traslado';
+  } else if (saldo === maximoConfig) {
+    estadoClass = 'amarillo';
+    estadoMsg = '🟡 Saldo igual al máximo — nada para trasladar al acopio';
   } else if (clase === 'Z') {
     estadoClass = 'gris';
     estadoMsg = '⚪ Sin rotación — revisar obsolescencia';
-  } else if (diasAcopio < diasColchonSugerido(clase) * 0.5) {
-    estadoClass = 'amarillo';
-    estadoMsg = '🟡 Colchón por debajo del 50% del ideal (' + diasColchonSugerido(clase) + 'd)';
-  } else if (diasAcopio < diasColchonSugerido(clase) * 0.8) {
+  } else if (totalAcopio === 0) {
     estadoClass = 'naranja';
-    estadoMsg = '🟠 Colchón por debajo del ideal — monitorear';
+    estadoMsg = '🟠 Todo el saldo queda en facturable — sin traslado al acopio';
   }
 
   // Mostrar resultado
@@ -1892,9 +1956,9 @@ function calcularTraslado() {
   document.getElementById('tr-r-alerta').className = 'alert-opt ' + estadoClass;
   document.getElementById('tr-r-alerta').textContent = estadoMsg;
 
-  const excMsg = excedentePuro > 0
-    ? fmt(excedentePuro) + ' uds adicionales sobre el colchón ideal también en acopio'
-    : '';
+  const excMsg = totalAcopio > 0
+    ? fmt(totalAcopio) + ' uds (' + (cm > 0 ? Math.floor(totalAcopio/cm) + ' cajas' : '') + ') se trasladan al Centro de Acopio'
+    : 'Sin traslado al Centro de Acopio';
   document.getElementById('tr-r-excedente').textContent = excMsg;
 
   document.getElementById('tr-resultado-actual').style.display = 'block';
