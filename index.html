@@ -236,7 +236,10 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
     <div class="sel-error" id="sel-error"></div>
     <div class="pin-wrap" id="pin-wrap">
       <label style="font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;display:block;margin-bottom:6px;">PIN de acceso</label>
-      <input type="password" class="pin-input" id="pin-input" placeholder="Ingresa el PIN" onkeydown="if(event.key==='Enter')verificarPin()"/>
+      <div style="position:relative;">
+        <input type="password" class="pin-input" id="pin-input" placeholder="Ingresa el PIN" onkeydown="if(event.key==='Enter')verificarPin()" style="padding-right:48px;"/>
+        <button onclick="togglePinVis('pin-input',this)" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#94a3b8;padding:4px;">👁</button>
+      </div>
       <div style="margin-top:10px;">
         <button class="btn-ingresar" onclick="verificarPin()">Ingresar →</button>
         <button class="btn-admin-link" onclick="volverSeleccion()">← Volver a selección de bodega</button>
@@ -244,7 +247,10 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
     </div>
     <div id="admin-pin-wrap" style="display:none;">
       <label style="font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:700;display:block;margin-bottom:6px;">PIN Maestro de Administración</label>
-      <input type="password" class="pin-input" id="admin-pin-input" placeholder="Ingresa el PIN maestro" onkeydown="if(event.key==='Enter')verificarPinAdmin()"/>
+      <div style="position:relative;">
+        <input type="password" class="pin-input" id="admin-pin-input" placeholder="Ingresa el PIN maestro" onkeydown="if(event.key==='Enter')verificarPinAdmin()" style="padding-right:48px;"/>
+        <button onclick="togglePinVis('admin-pin-input',this)" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#94a3b8;padding:4px;">👁</button>
+      </div>
       <div style="margin-top:10px;">
         <button class="btn-ingresar" onclick="verificarPinAdmin()">Ingresar como Admin →</button>
         <button class="btn-admin-link" onclick="volverSeleccion()">← Volver</button>
@@ -299,12 +305,14 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
       <div class="dash-value" id="dash-sin">—</div>
       <div class="dash-sub">requieren configuración</div>
     </div>
-    <div class="dash-card muted">
-      <div class="dash-label">Última Actualización</div>
-      <div class="dash-value" id="dash-fecha" style="font-size:15px;margin-top:4px;">—</div>
-      <div class="dash-sub">registro más reciente</div>
+    <div class="dash-card" style="border-top-color:#3b82f6;">
+      <div class="dash-label">Códigos en Acopio</div>
+      <div class="dash-value" id="dash-acopio-count" style="color:#1d4ed8;">—</div>
+      <div class="dash-sub" style="color:#3b82f6;">confirmados para Centro de Acopio</div>
     </div>
   </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+  <div>
   <div class="section-title">Top artículos por rotación</div>
   <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
     <div style="overflow-x:auto;">
@@ -330,7 +338,32 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
     </div>
   </div>
 </div>
- 
+
+  <!-- SEGUNDA COLUMNA: Lista de acopio confirmado -->
+  <div>
+    <div class="section-title">Confirmados para Centro de Acopio</div>
+    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
+      <div style="overflow-y:auto;max-height:420px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#0D2137;">
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 12px;text-align:left;position:sticky;top:0;background:#0D2137;">Código</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 12px;text-align:left;position:sticky;top:0;background:#0D2137;">Descripción</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 12px;text-align:right;position:sticky;top:0;background:#0D2137;">A Acopio</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 12px;text-align:center;position:sticky;top:0;background:#0D2137;">Clase</th>
+            </tr>
+          </thead>
+          <tbody id="dash-acopio-tbody">
+            <tr><td colspan="4"><div class="empty" style="padding:24px;">Sin confirmaciones aún</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:10px 12px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8;" id="dash-acopio-count-footer"></div>
+    </div>
+  </div>
+</div>
+</div>
+
 <!-- ══════════════════════════════════════════ -->
 <!-- TAB: MÁXIMOS Y MÍNIMOS                   -->
 <!-- ══════════════════════════════════════════ -->
@@ -651,7 +684,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <input type="number" id="tr-dias-colchon" placeholder="0" min="0" oninput="calcularTraslado()" style="border-color:#085041;"/>
       </div>
       <div style="display:flex;align-items:flex-end;">
-        <button onclick="agregarALista()" style="padding:10px 18px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;height:42px;white-space:nowrap;width:100%;">+ Agregar</button>
+        <button onclick="confirmarTraslado()" style="padding:10px 18px;background:#085041;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;height:42px;white-space:nowrap;width:100%;">✅ Confirmar</button>
       </div>
     </div>
 
@@ -713,10 +746,10 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   <!-- LISTA ACUMULADA DE TRASLADOS -->
   <div id="traslados-lista-wrap" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title" style="margin-bottom:0;">Lista de traslados</div>
+      <div class="section-title" style="margin-bottom:0;">Traslados confirmados</div>
       <div style="display:flex;gap:8px;">
         <button onclick="imprimirTraslados()" style="padding:8px 16px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Imprimir</button>
-        <button onclick="limpiarListaTraslados()" style="padding:8px 16px;background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">✕ Limpiar lista</button>
+        <button onclick="limpiarTrasladosConfirmados()" style="padding:8px 16px;background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🗑️ Limpiar confirmados</button>
       </div>
     </div>
     <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
@@ -1014,6 +1047,7 @@ function entrarAlModulo() {
   document.getElementById('header-info-default').style.display = 'none';
   // Cargar datos filtrados
   cargarCatalogo();
+  cargarListaTrasladosConfirmados();
   if (esAdmin) cargarBodegasAdmin();
 }
 
@@ -1629,7 +1663,7 @@ function cargarCatalogo() {
     const dashTotal = document.getElementById('dash-total');
     const dashCon = document.getElementById('dash-con');
     const dashSin = document.getElementById('dash-sin');
-    const dashFecha = document.getElementById('dash-fecha');
+    const dashAcopioCount = document.getElementById('dash-acopio-count');
     const dashRec = null; // reemplazado por dash-top-tbody
  
     if (!snap.exists()) {
@@ -1654,7 +1688,38 @@ function cargarCatalogo() {
     dashTotal.textContent = arts.length;
     dashCon.textContent = conCaja;
     dashSin.textContent = sinCaja;
-    dashFecha.textContent = fmtFecha(ultimaFecha);
+    // Cargar contador de acopio desde Firebase
+    const bodegaDash = esAdmin ? null : bodegaActiva;
+    if (bodegaDash) {
+      db.ref('trasladosAcopio/' + bodegaDash).once('value', snapAcopio => {
+        const cnt = snapAcopio.exists() ? Object.keys(snapAcopio.val()).length : 0;
+        if (dashAcopioCount) dashAcopioCount.textContent = cnt;
+        // Llenar tabla lateral de acopio
+        const dashAcopioTbody = document.getElementById('dash-acopio-tbody');
+        const dashAcopioFooter = document.getElementById('dash-acopio-count-footer');
+        if (dashAcopioTbody && snapAcopio.exists()) {
+          const items = Object.values(snapAcopio.val())
+            .sort((a,b) => (b.fechaConfirmacion||0) - (a.fechaConfirmacion||0));
+          const badgeClasses = {A:'badge-a',B:'badge-b',C:'badge-c',Z:'badge-z'};
+          dashAcopioTbody.innerHTML = items.map((t,i) => {
+            const bc = badgeClasses[t.clase] || 'badge-z';
+            const bg = i%2===0?'':'background:#fafafa;';
+            return `<tr style="${bg}border-bottom:1px solid #f1f5f9;">
+              <td style="padding:9px 12px;font-family:monospace;font-weight:700;color:#0D2137;font-size:12px;">${t.codigo}</td>
+              <td style="padding:9px 12px;font-size:11px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;" title="${t.descripcion}">${t.descripcion}</td>
+              <td style="padding:9px 12px;text-align:right;font-size:12px;font-weight:700;color:#1d4ed8;">${fmt(t.totalAcopio)}</td>
+              <td style="padding:9px 12px;text-align:center;"><span class="traslado-badge ${bc}">${t.clase}</span></td>
+            </tr>`;
+          }).join('');
+          if (dashAcopioFooter) dashAcopioFooter.textContent = cnt + ' artículos confirmados para Centro de Acopio';
+        } else if (dashAcopioTbody) {
+          dashAcopioTbody.innerHTML = '<tr><td colspan="4"><div class="empty" style="padding:24px;">Sin confirmaciones aún</div></td></tr>';
+          if (dashAcopioFooter) dashAcopioFooter.textContent = '';
+        }
+      });
+    } else {
+      if (dashAcopioCount) dashAcopioCount.textContent = '—';
+    }
     document.getElementById('cat-count').textContent = '(' + arts.length + ' artículos)';
  
     // Tabla catálogo
@@ -1980,41 +2045,104 @@ function calcularTraslado() {
   };
 }
 
-function agregarALista() {
+// Toggle visibilidad PIN
+function togglePinVis(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+// Confirmar traslado — guarda en Firebase
+function confirmarTraslado() {
   if (!_trArticulo || !_trArticulo._calcResult) {
     showAlert('tr-alert', '⚠️ Primero ingresa un código y saldo válidos.', 'warn'); return;
   }
   const r = _trArticulo._calcResult;
   const art = _trArticulo;
+  const bodega = esAdmin ? 'admin' : (bodegaActiva || 'sin_bodega');
+  const ahora = Date.now();
 
-  // Verificar si ya está en la lista
-  const idx = _trListaTraslados.findIndex(t => t.codigo === art.codigo);
-  if (idx >= 0) _trListaTraslados.splice(idx, 1);
-
-  _trListaTraslados.push({
+  const traslado = {
     codigo: art.codigo,
     descripcion: art.descripcion,
-    clase: r.clase,
+    clase: r.clase || 'Z',
+    bodega: art.bodega || bodega,
     saldo: r.saldo,
     saldoFacturable: r.saldoFacturable,
     totalAcopio: r.totalAcopio,
+    cajasAcopio: r.cm > 0 ? Math.floor(r.totalAcopio / r.cm) : 0,
     diasTotal: r.diasTotal,
     estadoClass: r.estadoClass,
-    estadoMsg: r.estadoMsg,
     cm: r.cm,
+    fechaConfirmacion: ahora
+  };
+
+  db.ref('trasladosAcopio/' + bodega + '/' + art.codigo).set(traslado).then(() => {
+    showAlert('tr-alert', '✅ Traslado de ' + art.codigo + ' confirmado y guardado.', 'success');
+    document.getElementById('tr-alert').classList.add('show');
+    // Limpiar formulario
+    document.getElementById('tr-codigo').value = '';
+    document.getElementById('tr-saldo').value = '';
+    document.getElementById('tr-dias-colchon').value = '';
+    document.getElementById('tr-info-articulo').style.display = 'none';
+    document.getElementById('tr-resultado-actual').style.display = 'none';
+    document.getElementById('tr-clase-badge').innerHTML = '';
+    _trArticulo = null;
+    document.getElementById('tr-codigo').focus();
+    // Recargar lista y dashboard
+    cargarListaTrasladosConfirmados();
+    cargarCatalogo();
+  }).catch(e => {
+    showAlert('tr-alert', '❌ Error al confirmar: ' + e.message, 'error');
+    document.getElementById('tr-alert').classList.add('show');
   });
+}
 
-  renderListaTraslados();
+// Cargar lista de traslados confirmados desde Firebase
+function cargarListaTrasladosConfirmados() {
+  const bodega = esAdmin ? 'admin' : (bodegaActiva || 'sin_bodega');
+  db.ref('trasladosAcopio/' + bodega).on('value', snap => {
+    const wrap = document.getElementById('traslados-lista-wrap');
+    const tbody = document.getElementById('traslados-tbody');
+    const tbodyMobile = document.getElementById('traslados-tbody-mobile');
 
-  // Limpiar para siguiente artículo
-  document.getElementById('tr-codigo').value = '';
-  document.getElementById('tr-saldo').value = '';
-  document.getElementById('tr-dias-colchon').value = '';
-  document.getElementById('tr-info-articulo').style.display = 'none';
-  document.getElementById('tr-resultado-actual').style.display = 'none';
-  document.getElementById('tr-clase-badge').innerHTML = '';
-  _trArticulo = null;
-  document.getElementById('tr-codigo').focus();
+    if (!snap.exists() || !snap.val()) {
+      if (wrap) wrap.style.display = 'none';
+      return;
+    }
+
+    const traslados = Object.values(snap.val())
+      .sort((a,b) => (b.fechaConfirmacion||0) - (a.fechaConfirmacion||0));
+
+    if (wrap) wrap.style.display = 'block';
+    _trListaTraslados = traslados;
+    renderListaTraslados();
+  });
+}
+
+// Quitar traslado confirmado de Firebase
+function quitarDeListaTraslados(codigo) {
+  const bodega = esAdmin ? 'admin' : (bodegaActiva || 'sin_bodega');
+  if (!confirm('¿Quitar el traslado de ' + codigo + ' de los confirmados?')) return;
+  db.ref('trasladosAcopio/' + bodega + '/' + codigo).remove().then(() => {
+    cargarListaTrasladosConfirmados();
+    cargarCatalogo();
+  });
+}
+
+// Limpiar todos los traslados confirmados
+function limpiarTrasladosConfirmados() {
+  const bodega = esAdmin ? 'admin' : (bodegaActiva || 'sin_bodega');
+  if (!confirm('¿Limpiar TODOS los traslados confirmados de esta bodega? Esta acción no se puede deshacer.')) return;
+  db.ref('trasladosAcopio/' + bodega).remove().then(() => {
+    cargarListaTrasladosConfirmados();
+    cargarCatalogo();
+  });
 }
 
 function renderListaTraslados() {
@@ -2039,21 +2167,12 @@ function renderListaTraslados() {
       <td style="padding:10px 14px;text-align:center;"><span class="alert-opt ${t.estadoClass}" style="font-size:10px;">${
         {verde:'✅ Óptimo',amarillo:'🟡 Bajo',naranja:'🟠 Monitorear',rojo:'🔴 Déficit',gris:'⚪ Sin rot.'}[t.estadoClass]||'—'
       }</span></td>
-      <td style="padding:10px 14px;"><button onclick="quitarDeListaTraslados(${i})" style="padding:4px 10px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td>
+      <td style="padding:10px 14px;"><button onclick="quitarDeListaTraslados('${t.codigo}')" style="padding:4px 10px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td>
     </tr>`;
   }).join('');
 }
 
-function quitarDeListaTraslados(idx) {
-  _trListaTraslados.splice(idx, 1);
-  renderListaTraslados();
-}
 
-function limpiarListaTraslados() {
-  if (!confirm('¿Limpiar toda la lista de traslados?')) return;
-  _trListaTraslados = [];
-  renderListaTraslados();
-}
 
 function imprimirTraslados() {
   const bodegaInfo = esAdmin ? 'Administrador' : 'Bodega ' + bodegaActiva + (bodegaActivaNombre ? ' — ' + bodegaActivaNombre : '');
