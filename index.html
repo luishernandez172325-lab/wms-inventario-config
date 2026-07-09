@@ -124,7 +124,89 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   thead th{padding:8px 8px;font-size:9px;}
   tbody td{padding:8px 8px;}
 }
-@media(max-width:480px){.dash-grid{grid-template-columns:1fr;}.header-sep{display:none;}}
+@media(max-width:480px){
+  .dash-grid{grid-template-columns:1fr;}
+  .header-sep{display:none;}
+  .bodegas-grid{grid-template-columns:1fr!important;}
+  #page-dashboard > div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;}
+}
+
+/* ══ TRASLADOS MÓVIL — solo ≤640px ══ */
+@media(max-width:640px){
+
+  /* 1. Encabezado ABC: título arriba, filtros en scroll horizontal */
+  #page-traslados > div:first-child > div:first-child{
+    flex-direction:column;
+    align-items:flex-start!important;
+    gap:8px!important;
+  }
+  .tr-filtros-wrap{
+    width:100%;
+    overflow-x:auto;
+    flex-wrap:nowrap!important;
+    padding-bottom:4px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .tr-buscar-abc{
+    min-width:130px!important;
+    flex-shrink:0;
+  }
+
+  /* 2. Tabla ABC: ocultar columna rotación en móvil */
+  #abc-lista-tbody td:nth-child(4),
+  #page-traslados .form-card table thead tr th:nth-child(4){display:none;}
+
+  /* 3. Formulario: 2 columnas, botón abajo full ancho */
+  .tr-form-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+  }
+  .tr-btn-confirmar-wrap{
+    grid-column:1 / -1;
+  }
+  .tr-btn-confirmar-wrap button{
+    height:48px!important;
+    font-size:15px!important;
+  }
+
+  /* 4. Info artículo: grid 2 columnas */
+  .tr-info-grid{
+    display:grid!important;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .tr-info-grid > div:first-child{
+    grid-column:1 / -1;
+  }
+
+  /* 5. Resultado cálculo */
+  .traslado-grid{grid-template-columns:1fr!important;}
+  .traslado-col{border-right:none!important;border-bottom:1px solid #f1f5f9;}
+  .traslado-col:last-child{border-bottom:none;}
+  .traslado-col-uds{font-size:20px!important;}
+  .traslado-header{flex-direction:column;gap:8px;}
+  .traslado-meta{justify-content:flex-start;}
+
+  /* 6. Lista confirmados: desktop oculto, mobile visible */
+  .traslado-tabla-desktop{display:none!important;}
+  .traslado-tabla-mobile{display:block!important;}
+
+  /* 7. Botones header lista: columna full */
+  .tr-btns-header{flex-direction:column!important;width:100%;}
+  .tr-btns-header button{width:100%!important;text-align:center;}
+
+  /* 8. Modal ubicaciones: compacto */
+  .modal-box{padding:18px 14px!important;border-radius:12px!important;}
+  .modal-resumen{grid-template-columns:1fr 1fr!important;}
+  .modal-resumen > div:first-child{grid-column:1/-1;}
+  .modal-table input{padding:9px 8px!important;font-size:14px!important;}
+  .modal-box > div:last-child{flex-direction:column;}
+  .modal-box > div:last-child button{width:100%!important;}
+
+  /* 9. Pantalla selección bodega en móvil */
+  .sel-card{padding:20px 14px!important;margin:8px!important;}
+  .dropdown-trigger{font-size:13px!important;padding:11px 14px!important;}
+}
 
 /* ── PANTALLA SELECCIÓN BODEGA ── */
 #pantalla-seleccion{position:fixed;top:0;left:0;width:100%;height:100%;background:#f1f5f9;z-index:9999;display:flex;align-items:center;justify-content:center;}
@@ -659,14 +741,14 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   <div style="margin-bottom:20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
       <div class="section-title" style="margin-bottom:0;">Clasificación ABC — Bodega activa</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <div class="tr-filtros-wrap" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <span style="font-size:11px;color:#64748b;">Filtrar:</span>
         <button onclick="filtrarABC('todos')" id="filtro-todos" style="padding:5px 14px;background:#0D2137;color:#4ECCA3;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Todos</button>
         <button onclick="filtrarABC('A')" id="filtro-a" style="padding:5px 14px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase A</button>
         <button onclick="filtrarABC('B')" id="filtro-b" style="padding:5px 14px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase B</button>
         <button onclick="filtrarABC('C')" id="filtro-c" style="padding:5px 14px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase C</button>
         <button onclick="filtrarABC('Z')" id="filtro-z" style="padding:5px 14px;background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase Z</button>
-        <input type="text" id="abc-buscar" placeholder="Buscar código o descripción..." oninput="filtrarABC()" style="padding:5px 12px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:12px;outline:none;min-width:200px;"/>
+        <input type="text" id="abc-buscar" placeholder="Buscar código..." oninput="filtrarABC()" class="tr-buscar-abc" style="padding:5px 12px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:12px;outline:none;min-width:200px;"/>
       </div>
     </div>
     <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
@@ -692,7 +774,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 
   <!-- FORMULARIO INGRESO -->
   <div class="form-card" style="margin-bottom:16px;">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:flex-end;">
+    <div class="tr-form-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:flex-end;">
       <div class="form-group">
         <label>Código de Artículo</label>
         <input type="text" id="tr-codigo" placeholder="Ej: 7186" oninput="buscarArticuloTraslado()" style="border-color:#0D2137;font-weight:700;"/>
@@ -705,14 +787,14 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
         <label>Días colchón bodega facturable</label>
         <input type="number" id="tr-dias-colchon" placeholder="0" min="0" oninput="calcularTraslado()" style="border-color:#085041;"/>
       </div>
-      <div style="display:flex;align-items:flex-end;">
+      <div class="tr-btn-confirmar-wrap" style="display:flex;align-items:flex-end;">
         <button onclick="confirmarTraslado()" style="padding:10px 18px;background:#085041;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;height:42px;white-space:nowrap;width:100%;">✅ Confirmar</button>
       </div>
     </div>
 
     <!-- Info del artículo -->
     <div id="tr-info-articulo" style="display:none;margin-top:12px;padding:12px 14px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;">
-      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+      <div class="tr-info-grid">
         <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Descripción</span><br><strong style="font-size:13px;color:#0D2137;" id="tr-desc">—</strong></div>
         <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Clase ABC</span><br><span id="tr-clase-badge"></span></div>
         <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Rotación/mes</span><br><strong style="font-size:13px;color:#0D2137;" id="tr-rotacion">—</strong></div>
@@ -769,9 +851,9 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   <div id="traslados-lista-wrap" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
       <div class="section-title" style="margin-bottom:0;">Traslados confirmados</div>
-      <div style="display:flex;gap:8px;">
+      <div class="tr-btns-header" style="display:flex;gap:8px;">
         <button onclick="imprimirTraslados()" style="padding:8px 16px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Imprimir</button>
-        <button onclick="limpiarTrasladosConfirmados()" style="padding:8px 16px;background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🗑️ Limpiar confirmados</button>
+        <button onclick="limpiarTrasladosConfirmados()" style="padding:8px 16px;background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🗑️ Limpiar</button>
       </div>
     </div>
     <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
