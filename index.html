@@ -8,7 +8,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;}
+*{box-sizing:border-box;}
+html{overflow-x:hidden;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;overflow-x:hidden;}
  
 /* ── HEADER ── */
 .header{background:linear-gradient(135deg,#0D2137 0%,#1a3a5c 100%);border-bottom:2px solid #4ECCA3;padding:14px 24px;display:flex;align-items:center;gap:16px;}
@@ -209,6 +211,18 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   /* 9. Pantalla selección bodega en móvil */
   .sel-card{padding:20px 14px!important;margin:8px!important;}
   .dropdown-trigger{font-size:13px!important;padding:11px 14px!important;}
+
+  /* 10. Admin formulario bodega */
+  .admin-form-grid{grid-template-columns:1fr 1fr!important;}
+  .admin-form-grid > button{grid-column:1/-1;}
+  .admin-bodega-row{flex-wrap:wrap;}
+  .admin-pin-field{width:100%!important;}
+
+  /* 11. Dashboard grid 2 cols → 1 col en muy pequeño */
+  .dash-grid{grid-template-columns:1fr 1fr!important;}
+
+  /* 12. Formulario admin PIN maestro */
+  #page-admin .form-group{min-width:unset!important;}
 }
 
 /* ── PANTALLA SELECCIÓN BODEGA ── */
@@ -285,7 +299,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 .alert-opt.naranja{background:#fff7ed;color:#c2410c;border:1px solid #fdba74;}
 .alert-opt.verde{background:#f0fdf4;color:#15803d;border:1px solid #86efac;}
 .alert-opt.gris{background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;}
-.traslado-lista-header{background:#0D2137;display:grid;grid-template-columns:100px 1fr 60px 130px 130px 130px 100px;padding:10px 16px;gap:8px;border-radius:10px 10px 0 0;}
+.traslado-lista-header{background:#0D2137;display:grid;grid-template-columns:100px 1fr 60px 130px 130px 130px 100px;padding:10px 16px;gap:8px;border-radius:10px 10px 0 0;overflow-x:auto;}
 .traslado-lista-header span{font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
 .traslado-lista-row{display:grid;grid-template-columns:100px 1fr 60px 130px 130px 130px 100px;padding:10px 16px;gap:8px;border-bottom:1px solid #f1f5f9;align-items:center;}
 .traslado-lista-row:last-child{border-bottom:none;}
@@ -888,7 +902,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   <!-- Crear bodega -->
   <div class="admin-section">
     <div style="font-size:13px;font-weight:700;color:#0D2137;margin-bottom:14px;">➕ Agregar nueva bodega</div>
-    <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+    <div class="admin-form-grid" style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:flex-end;">
       <div class="form-group">
         <label>Código</label>
         <input type="text" id="adm-nuevo-codigo" placeholder="Ej: 08" style="text-transform:uppercase;"/>
