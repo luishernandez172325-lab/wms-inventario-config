@@ -750,41 +750,6 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 <!-- ══════════════════════════════════════════ -->
 <div id="page-traslados" class="page">
 
-  <!-- LISTA ABC FILTRABLE -->
-  <div style="margin-bottom:20px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-      <div class="section-title" style="margin-bottom:0;">Clasificación ABC — Bodega activa</div>
-      <div class="tr-filtros-wrap" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <span style="font-size:11px;color:#64748b;">Filtrar:</span>
-        <button onclick="filtrarABC('todos')" id="filtro-todos" style="padding:5px 14px;background:#0D2137;color:#4ECCA3;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Todos</button>
-        <button onclick="filtrarABC('A')" id="filtro-a" style="padding:5px 14px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase A</button>
-        <button onclick="filtrarABC('B')" id="filtro-b" style="padding:5px 14px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase B</button>
-        <button onclick="filtrarABC('C')" id="filtro-c" style="padding:5px 14px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase C</button>
-        <button onclick="filtrarABC('Z')" id="filtro-z" style="padding:5px 14px;background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase Z</button>
-        <input type="text" id="abc-buscar" placeholder="Buscar código..." oninput="filtrarABC()" class="tr-buscar-abc" style="padding:5px 12px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:12px;outline:none;min-width:200px;"/>
-      </div>
-    </div>
-    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
-      <div style="overflow-x:auto;max-height:280px;overflow-y:auto;">
-        <table style="width:100%;border-collapse:collapse;min-width:500px;">
-          <thead style="position:sticky;top:0;z-index:2;">
-            <tr style="background:#0D2137;">
-              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Código</th>
-              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Descripción</th>
-              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Clase</th>
-              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:right;">Rotación/mes</th>
-              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="abc-lista-tbody">
-            <tr><td colspan="5"><div class="empty">Cargando...</div></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="padding:8px 14px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8;" id="abc-lista-count"></div>
-    </div>
-  </div>
-
   <!-- FORMULARIO INGRESO -->
   <div class="form-card" style="margin-bottom:16px;">
     <div class="tr-form-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:flex-end;">
@@ -888,6 +853,41 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
           <tbody id="traslados-tbody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- LISTA ABC FILTRABLE -->
+  <div style="margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+      <div class="section-title" style="margin-bottom:0;">Clasificación ABC — Bodega activa</div>
+      <div class="tr-filtros-wrap" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:11px;color:#64748b;">Filtrar:</span>
+        <button onclick="filtrarABC('todos')" id="filtro-todos" style="padding:5px 14px;background:#0D2137;color:#4ECCA3;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Todos</button>
+        <button onclick="filtrarABC('A')" id="filtro-a" style="padding:5px 14px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase A</button>
+        <button onclick="filtrarABC('B')" id="filtro-b" style="padding:5px 14px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase B</button>
+        <button onclick="filtrarABC('C')" id="filtro-c" style="padding:5px 14px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase C</button>
+        <button onclick="filtrarABC('Z')" id="filtro-z" style="padding:5px 14px;background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;">Clase Z</button>
+        <input type="text" id="abc-buscar" placeholder="Buscar código..." oninput="filtrarABC()" class="tr-buscar-abc" style="padding:5px 12px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:12px;outline:none;min-width:200px;"/>
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
+      <div style="overflow-x:auto;max-height:280px;overflow-y:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:500px;">
+          <thead style="position:sticky;top:0;z-index:2;">
+            <tr style="background:#0D2137;">
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Código</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:left;">Descripción</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Clase</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:right;">Rotación/mes</th>
+              <th style="font-size:9px;color:#4ECCA3;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:10px 14px;text-align:center;">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="abc-lista-tbody">
+            <tr><td colspan="5"><div class="empty">Cargando...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:8px 14px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8;" id="abc-lista-count"></div>
     </div>
   </div>
 </div>
