@@ -1962,6 +1962,7 @@ inicializarBodegas();
 // PESTAÑA TRASLADOS
 // ═══════════════════════════════════════════════
 let _trArticulo = null;
+let _ultimoTraslado = null; // último traslado calculado o confirmado
 let _trTimer = null;
 let _trListaTraslados = [];
 let _trClasificacionABC = {};
@@ -2230,6 +2231,19 @@ function calcularTraslado() {
     saldo, saldoFacturable, totalAcopio, diasFact, diasAcopio, diasTotal,
     clase, estadoClass, estadoMsg, cm, cd, maximoConfig, diasColchon
   };
+
+  // Guardar copia del artículo actual para poder imprimir
+  // incluso después de confirmar (cuando _trArticulo se limpia)
+  _ultimoTraslado = {
+    codigo: _trArticulo.codigo,
+    descripcion: _trArticulo.descripcion,
+    clase, bodega: _trArticulo.bodega,
+    rotacionMensual: _trArticulo.rotacionMensual,
+    saldo, saldoFacturable, totalAcopio,
+    diasFact, diasAcopio, diasTotal,
+    cm, cd, maximoConfig,
+    ubicaciones: null // se actualizará al confirmar
+  };
 }
 
 // Toggle visibilidad PIN
@@ -2356,6 +2370,12 @@ function guardarTraslado() {
     fechaConfirmacion: ahora
   };
 
+  // Actualizar _ultimoTraslado con ubicaciones para impresión post-confirmación
+  if (_ultimoTraslado && _ultimoTraslado.codigo === art.codigo) {
+    _ultimoTraslado.ubicaciones = ubicaciones;
+    _ultimoTraslado.fechaConfirmacion = ahora;
+  }
+
   db.ref('trasladosAcopio/' + bodega + '/' + art.codigo).set(traslado).then(() => {
     cerrarModalUbicaciones();
     showAlert('tr-alert', '✅ Traslado de ' + art.codigo + ' confirmado con ' + ubicaciones.length + ' ubicación(es).', 'success');
@@ -2447,16 +2467,11 @@ function renderListaTraslados() {
 
 
 function imprimirTraslados() {
-  // Imprimir solo el artículo actual en pantalla
-  if (!_trArticulo || !_trArticulo._calcResult) {
-    alert('⚠️ No hay ningún artículo calculado en pantalla para imprimir.'); return;
+  // Imprimir el último artículo calculado o confirmado
+  if (!_ultimoTraslado) {
+    alert('⚠️ Calcula un traslado primero antes de imprimir.'); return;
   }
-  const t = {
-    ..._trArticulo,
-    ..._trArticulo._calcResult,
-    descripcion: _trArticulo.descripcion,
-    bodega: _trArticulo.bodega
-  };
+  const t = _ultimoTraslado;
   const bodegaInfo = esAdmin ? 'Administrador' : 'Bodega ' + bodegaActiva + (bodegaActivaNombre ? ' — ' + bodegaActivaNombre : '');
   const fecha = new Date().toLocaleDateString('es-CR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const cajasFact = t.cm > 0 ? Math.floor(t.saldoFacturable / t.cm) : '—';
@@ -2522,6 +2537,15 @@ function imprimirTraslados() {
     <tr><td>Consumo diario</td><td>${cd.toFixed(2)} uds/día</td></tr>
     <tr><td>Días totales cubiertos</td><td>${t.diasTotal.toFixed(1)} días</td></tr>
   </table>
+
+  ${t.ubicaciones && t.ubicaciones.length > 0 ? `
+  <div class="ubic-title">Ubicaciones en bodega facturable</div>
+  <table class="ubic-table">
+    <thead><tr><th>Ubicación</th><th style="text-align:right;">Cantidad (uds)</th></tr></thead>
+    <tbody>
+      ${t.ubicaciones.map(u => `<tr><td>${u.ubicacion}</td><td style="text-align:right;">${fmt(u.cantidad)} uds</td></tr>`).join('')}
+    </tbody>
+  </table>` : ''}
 
   <div class="footer">Generado por AEL MÓDULOS — Configuración de Inventario · Unidos Mayoreo</div>
   <script>window.onload=()=>{window.print();}<\/script>
