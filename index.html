@@ -2447,49 +2447,83 @@ function renderListaTraslados() {
 
 
 function imprimirTraslados() {
+  // Imprimir solo el artículo actual en pantalla
+  if (!_trArticulo || !_trArticulo._calcResult) {
+    alert('⚠️ No hay ningún artículo calculado en pantalla para imprimir.'); return;
+  }
+  const t = {
+    ..._trArticulo,
+    ..._trArticulo._calcResult,
+    descripcion: _trArticulo.descripcion,
+    bodega: _trArticulo.bodega
+  };
   const bodegaInfo = esAdmin ? 'Administrador' : 'Bodega ' + bodegaActiva + (bodegaActivaNombre ? ' — ' + bodegaActivaNombre : '');
   const fecha = new Date().toLocaleDateString('es-CR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  const filas = _trListaTraslados.map(t => {
-    const cajasFact = t.cm > 0 ? Math.floor(t.saldoFacturable/t.cm) : '—';
-    const cajasAcopio = t.cm > 0 ? Math.floor(t.totalAcopio/t.cm) : '—';
-    const ubics = t.ubicaciones && t.ubicaciones.length > 0
-      ? '<tr><td colspan="7" style="padding:4px 12px 10px;"><table style="width:100%;font-size:11px;border-collapse:collapse;"><thead><tr><th style="background:#f8fafc;padding:4px 8px;text-align:left;color:#64748b;border:1px solid #e2e8f0;">Ubicación</th><th style="background:#f8fafc;padding:4px 8px;text-align:right;color:#64748b;border:1px solid #e2e8f0;">Cantidad</th></tr></thead><tbody>' +
-        t.ubicaciones.map(u => `<tr><td style="padding:3px 8px;border:1px solid #e2e8f0;">${u.ubicacion}</td><td style="padding:3px 8px;text-align:right;border:1px solid #e2e8f0;">${fmt(u.cantidad)} uds</td></tr>`).join('') +
-        '</tbody></table></td></tr>'
-      : '';
-    return `<tr style="border-bottom:1px solid #e2e8f0;">
-      <td>${t.codigo}</td>
-      <td>${t.descripcion}</td>
-      <td style="text-align:center;">${t.clase}</td>
-      <td style="text-align:right;">${fmt(t.saldo)}</td>
-      <td style="text-align:right;">${fmt(t.saldoFacturable)} (${cajasFact} cj)</td>
-      <td style="text-align:right;">${fmt(t.totalAcopio)} (${cajasAcopio} cj)</td>
-      <td style="text-align:center;">${t.diasTotal.toFixed(1)}d</td>
-    </tr>${ubics}`;
-  }).join('');
+  const cajasFact = t.cm > 0 ? Math.floor(t.saldoFacturable / t.cm) : '—';
+  const cajasAcopio = t.cm > 0 ? Math.floor(t.totalAcopio / t.cm) : '—';
+  const cd = t.rotacionMensual / 30;
+
   const win = window.open('', '_blank');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <title>Lista de Traslados</title>
+  <title>Traslado — ${t.codigo}</title>
   <style>
-    body{font-family:'Segoe UI',sans-serif;padding:24px;color:#1e293b;}
-    h2{color:#0D2137;margin-bottom:4px;}
-    .meta{color:#64748b;font-size:13px;margin-bottom:20px;}
-    table{width:100%;border-collapse:collapse;font-size:12px;}
-    thead th{background:#0D2137;color:#4ECCA3;padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;}
-    tbody td{padding:8px 12px;border-bottom:1px solid #f1f5f9;}
-    tbody tr:nth-child(even){background:#f8fafc;}
-    .footer{margin-top:20px;font-size:11px;color:#94a3b8;}
+    body{font-family:'Segoe UI',sans-serif;padding:28px;color:#1e293b;max-width:700px;margin:0 auto;}
+    .header{background:#0D2137;color:#4ECCA3;padding:14px 18px;border-radius:8px;margin-bottom:20px;}
+    .header h2{margin:0;font-size:16px;color:#fff;}
+    .header .sub{font-size:11px;color:#4ECCA3;margin-top:2px;}
+    .meta{color:#64748b;font-size:12px;margin-bottom:20px;display:flex;gap:16px;flex-wrap:wrap;}
+    .resumen{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
+    .resumen-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;}
+    .resumen-item label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:4px;}
+    .resumen-item .val{font-size:20px;font-weight:700;color:#0D2137;}
+    .resumen-item.verde .val{color:#085041;}
+    .resumen-item.azul .val{color:#1d4ed8;}
+    .info-table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;}
+    .info-table td{padding:7px 10px;border-bottom:1px solid #f1f5f9;}
+    .info-table td:first-child{color:#64748b;width:40%;}
+    .info-table td:last-child{font-weight:600;color:#0D2137;}
+    .ubic-title{font-size:11px;font-weight:700;color:#0D2137;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #4ECCA3;display:inline-block;}
+    .ubic-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .ubic-table thead th{background:#0D2137;color:#4ECCA3;padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;}
+    .ubic-table tbody td{padding:8px 12px;border-bottom:1px solid #f1f5f9;}
+    .ubic-table tbody tr:nth-child(even){background:#f8fafc;}
+    .footer{margin-top:24px;font-size:11px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:12px;}
+    @media print{body{padding:16px;}}
   </style></head><body>
-  <h2>Lista de Traslados — Centro de Acopio</h2>
-  <div class="meta">${bodegaInfo} &nbsp;·&nbsp; ${fecha} &nbsp;·&nbsp; ${_trListaTraslados.length} artículos</div>
-  <table>
-    <thead><tr>
-      <th>Código</th><th>Descripción</th><th>Clase</th>
-      <th>Saldo Total</th><th>En Facturable</th><th>A Acopio</th><th>Días total</th>
-    </tr></thead>
-    <tbody>${filas}</tbody>
+  <div class="header">
+    <h2>Traslado al Centro de Acopio</h2>
+    <div class="sub">${bodegaInfo} &nbsp;·&nbsp; ${fecha}</div>
+  </div>
+
+  <div class="resumen">
+    <div class="resumen-item">
+      <label>Código</label>
+      <div class="val" style="font-size:16px;">${t.codigo}</div>
+    </div>
+    <div class="resumen-item verde">
+      <label>Bodega Facturable</label>
+      <div class="val">${fmt(t.saldoFacturable)} uds</div>
+      <div style="font-size:11px;color:#475569;">${cajasFact} cajas · ${cd > 0 ? (t.saldoFacturable/cd).toFixed(1) : '—'} días</div>
+    </div>
+    <div class="resumen-item azul">
+      <label>A Centro de Acopio</label>
+      <div class="val">${fmt(t.totalAcopio)} uds</div>
+      <div style="font-size:11px;color:#475569;">${cajasAcopio} cajas · ${cd > 0 ? (t.totalAcopio/cd).toFixed(1) : '—'} días</div>
+    </div>
+  </div>
+
+  <table class="info-table">
+    <tr><td>Descripción</td><td>${t.descripcion}</td></tr>
+    <tr><td>Clase ABC</td><td>${t.clase || '—'}</td></tr>
+    <tr><td>Bodega</td><td>${t.bodega || '—'}</td></tr>
+    <tr><td>Saldo total</td><td>${fmt(t.saldo)} uds</td></tr>
+    <tr><td>Máximo configurado</td><td>${fmt(t.saldoFacturable)} uds</td></tr>
+    <tr><td>Caja máster</td><td>${t.cm > 0 ? fmt(t.cm) + ' uds/caja' : '—'}</td></tr>
+    <tr><td>Consumo diario</td><td>${cd.toFixed(2)} uds/día</td></tr>
+    <tr><td>Días totales cubiertos</td><td>${t.diasTotal.toFixed(1)} días</td></tr>
   </table>
-  <div class="footer">Generado por AEL MÓDULOS — Configuración de Inventario</div>
+
+  <div class="footer">Generado por AEL MÓDULOS — Configuración de Inventario · Unidos Mayoreo</div>
   <script>window.onload=()=>{window.print();}<\/script>
   </body></html>`);
   win.document.close();
