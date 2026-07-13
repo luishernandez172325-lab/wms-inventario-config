@@ -867,7 +867,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
       <div class="section-title" style="margin-bottom:0;">Traslados confirmados</div>
       <div class="tr-btns-header" style="display:flex;gap:8px;">
         <button onclick="imprimirTraslados()" style="padding:8px 16px;background:#0D2137;color:#4ECCA3;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Imprimir</button>
-        <button onclick="limpiarTrasladosConfirmados()" style="padding:8px 16px;background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🗑️ Limpiar</button>
+        <button onclick="limpiarPantallaTraslados()" style="padding:8px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #cbd5e1;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↺ Nueva consulta</button>
       </div>
     </div>
     <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(13,33,55,.07);">
@@ -2427,14 +2427,32 @@ function quitarDeListaTraslados(codigo) {
   });
 }
 
-// Limpiar todos los traslados confirmados
+// Limpiar pantalla de traslados — no borra nada en Firebase
+function limpiarPantallaTraslados() {
+  // Limpiar campos del formulario
+  document.getElementById('tr-codigo').value = '';
+  document.getElementById('tr-saldo').value = '';
+  document.getElementById('tr-dias-colchon').value = '';
+  // Ocultar info artículo y resultado
+  const infoArt = document.getElementById('tr-info-articulo');
+  if (infoArt) infoArt.style.display = 'none';
+  const resultado = document.getElementById('tr-resultado-actual');
+  if (resultado) resultado.style.display = 'none';
+  // Limpiar badge de clase
+  const badge = document.getElementById('tr-clase-badge');
+  if (badge) badge.innerHTML = '';
+  // Limpiar alerta
+  hideAlert('tr-alert');
+  // Resetear artículo activo
+  _trArticulo = null;
+  // Poner foco en el campo de código
+  document.getElementById('tr-codigo').focus();
+}
+
+// Eliminar traslado individual de Firebase (desde el botón ✕ de cada fila)
 function limpiarTrasladosConfirmados() {
-  const bodega = esAdmin ? 'admin' : (bodegaActiva || 'sin_bodega');
-  if (!confirm('¿Limpiar TODOS los traslados confirmados de esta bodega? Esta acción no se puede deshacer.')) return;
-  db.ref('trasladosAcopio/' + bodega).remove().then(() => {
-    cargarListaTrasladosConfirmados();
-    cargarCatalogo();
-  });
+  // Función mantenida por compatibilidad — ya no borra todos
+  limpiarPantallaTraslados();
 }
 
 function renderListaTraslados() {
