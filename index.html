@@ -130,6 +130,9 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   .traslado-col{border-right:none;border-bottom:1px solid #f1f5f9;}
 }
 @media(max-width:480px){
+  .tarimas-card .dash-label{font-size:10px;}
+  #dash-tarimas-total{font-size:24px!important;}
+  #dash-tarimas-pct{font-size:20px!important;}
   .dash-grid{grid-template-columns:1fr;}
   .header-sep{display:none;}
   .bodegas-grid{grid-template-columns:1fr!important;}
@@ -323,6 +326,14 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 .modal-pendiente.ok{background:#f0fdf4;color:#15803d;border:1.5px solid #86efac;}
 .modal-pendiente.warn{background:#fffbeb;color:#92400e;border:1.5px solid #fcd34d;}
 .modal-pendiente.err{background:#fef2f2;color:#b91c1c;border:1.5px solid #fca5a5;}
+
+/* ── TARJETA TARIMAS ── */
+.tarimas-card{background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:20px 22px;box-shadow:0 2px 6px rgba(13,33,55,.07);position:relative;overflow:hidden;}
+.tarimas-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#8b5cf6;}
+.progreso-wrap{background:#f1f5f9;border-radius:20px;height:8px;margin:10px 0;overflow:hidden;}
+.progreso-bar{height:100%;border-radius:20px;background:#4ECCA3;transition:width .5s ease;}
+.progreso-bar.warn{background:#f59e0b;}
+.progreso-bar.danger{background:#ef4444;}
 </style>
 </head>
 <body>
@@ -403,7 +414,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
 <!-- TAB: DASHBOARD                            -->
 <!-- ══════════════════════════════════════════ -->
 <div id="page-dashboard" class="page active">
-  <div class="dash-grid">
+  <div class="dash-grid" style="grid-template-columns:repeat(4,1fr);">
     <div class="dash-card">
       <div class="dash-label">Total Artículos</div>
       <div class="dash-value" id="dash-total">—</div>
@@ -423,6 +434,31 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
       <div class="dash-label">Códigos en Acopio</div>
       <div class="dash-value" id="dash-acopio-count" style="color:#1d4ed8;">—</div>
       <div class="dash-sub" style="color:#3b82f6;">confirmados para Centro de Acopio</div>
+    </div>
+  </div>
+
+  <!-- TARJETA TARIMAS — ancho completo debajo del dash-grid -->
+  <div class="tarimas-card" style="margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="dash-label" style="color:#7c3aed;">📦 Tarimas en Centro de Acopio</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px;">
+          <span style="font-size:32px;font-weight:700;color:#7c3aed;" id="dash-tarimas-total">—</span>
+          <span style="font-size:16px;color:#94a3b8;">/ <span id="dash-tarimas-capacidad">—</span></span>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px;">tarimas ocupadas</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:28px;font-weight:700;" id="dash-tarimas-pct">—</div>
+        <div style="font-size:12px;color:#64748b;">ocupación</div>
+      </div>
+    </div>
+    <div class="progreso-wrap">
+      <div class="progreso-bar" id="dash-progreso-bar" style="width:0%;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:13px;font-weight:600;" id="dash-tarimas-disponibles">— posiciones disponibles</div>
+      <div style="font-size:11px;color:#94a3b8;">capacidad configurable en Administración</div>
     </div>
   </div>
   <!-- CONFIRMADOS PARA CENTRO DE ACOPIO — ancho completo, arriba del top -->
@@ -927,6 +963,20 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
     </div>
   </div>
 
+  <!-- Capacidad Centro de Acopio -->
+  <div class="admin-section">
+    <div style="font-size:13px;font-weight:700;color:#0D2137;margin-bottom:14px;">📦 Capacidad Centro de Acopio</div>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:200px;">
+        <label>Posiciones disponibles (tarimas)</label>
+        <input type="number" id="adm-capacidad-acopio" placeholder="Ej: 1488" min="1"/>
+      </div>
+      <button onclick="guardarCapacidadAcopio()" class="btn btn-primary" style="height:42px;">Actualizar</button>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:#64748b;">Capacidad actual: <strong id="adm-capacidad-actual">cargando...</strong> posiciones</div>
+    <div id="adm-alert-capacidad" class="alert" style="margin-top:10px;"></div>
+  </div>
+
   <!-- PIN Maestro -->
   <div class="admin-section">
     <div style="font-size:13px;font-weight:700;color:#0D2137;margin-bottom:14px;">🔑 Cambiar PIN Maestro</div>
@@ -1217,7 +1267,8 @@ function entrarAlModulo() {
   // Cargar datos filtrados
   cargarCatalogo();
   cargarListaTrasladosConfirmados();
-  if (esAdmin) cargarBodegasAdmin();
+  actualizarTarimasDashboard();
+  if (esAdmin) { cargarBodegasAdmin(); cargarCapacidadAdmin(); }
 }
 
 function cambiarBodega() {
@@ -1233,6 +1284,82 @@ function cambiarBodega() {
 // ═══════════════════════════════════════════════
 // ADMINISTRACIÓN DE BODEGAS
 // ═══════════════════════════════════════════════
+// ── TARIMAS Y CAPACIDAD ACOPIO ──
+function actualizarTarimasDashboard() {
+  const bodega = esAdmin ? null : bodegaActiva;
+  if (!bodega) return;
+
+  // Leer capacidad configurada
+  db.ref('configuracion/capacidadAcopio').once('value', snapCap => {
+    const capacidad = snapCap.exists() ? parseInt(snapCap.val()) : 1488;
+
+    // Leer traslados confirmados para contar tarimas
+    db.ref('trasladosAcopio/' + bodega).on('value', snapTraslados => {
+      let totalTarimas = 0;
+      if (snapTraslados.exists()) {
+        Object.values(snapTraslados.val()).forEach(t => {
+          if (t && t.ubicaciones && Array.isArray(t.ubicaciones)) {
+            totalTarimas += t.ubicaciones.length;
+          }
+        });
+      }
+
+      const disponibles = capacidad - totalTarimas;
+      const pct = capacidad > 0 ? (totalTarimas / capacidad * 100) : 0;
+
+      // Actualizar tarjeta
+      const elTotal = document.getElementById('dash-tarimas-total');
+      const elCap = document.getElementById('dash-tarimas-capacidad');
+      const elPct = document.getElementById('dash-tarimas-pct');
+      const elDisp = document.getElementById('dash-tarimas-disponibles');
+      const elBar = document.getElementById('dash-progreso-bar');
+
+      if (elTotal) elTotal.textContent = totalTarimas.toLocaleString('es-CR');
+      if (elCap) elCap.textContent = capacidad.toLocaleString('es-CR');
+      if (elDisp) elDisp.textContent = disponibles.toLocaleString('es-CR') + ' posiciones disponibles';
+      if (elPct) {
+        elPct.textContent = pct.toFixed(1) + '%';
+        elPct.style.color = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#7c3aed';
+      }
+      if (elBar) {
+        elBar.style.width = Math.min(pct, 100) + '%';
+        elBar.className = 'progreso-bar' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '');
+      }
+    });
+  });
+}
+
+function guardarCapacidadAcopio() {
+  const val = parseInt(document.getElementById('adm-capacidad-acopio').value);
+  const alertEl = document.getElementById('adm-alert-capacidad');
+  if (!val || val <= 0) {
+    alertEl.textContent = '⚠️ Ingresa un número válido mayor a 0.';
+    alertEl.className = 'alert alert-warn show'; return;
+  }
+  db.ref('configuracion/capacidadAcopio').set(val).then(() => {
+    alertEl.textContent = '✅ Capacidad actualizada a ' + val.toLocaleString('es-CR') + ' posiciones.';
+    alertEl.className = 'alert alert-success show';
+    document.getElementById('adm-capacidad-actual').textContent = val.toLocaleString('es-CR');
+    document.getElementById('adm-capacidad-acopio').value = '';
+    actualizarTarimasDashboard();
+  }).catch(e => {
+    alertEl.textContent = '❌ Error: ' + e.message;
+    alertEl.className = 'alert alert-error show';
+  });
+}
+
+function cargarCapacidadAdmin() {
+  db.ref('configuracion/capacidadAcopio').once('value', snap => {
+    const val = snap.exists() ? snap.val() : 1488;
+    const el = document.getElementById('adm-capacidad-actual');
+    if (el) el.textContent = parseInt(val).toLocaleString('es-CR');
+    // Si no existe en Firebase, guardar el default
+    if (!snap.exists()) {
+      db.ref('configuracion/capacidadAcopio').set(1488);
+    }
+  });
+}
+
 function cargarBodegasAdmin() {
   db.ref('configuracion/bodegas').on('value', snap => {
     const bodegas = snap.exists() ? snap.val() : {};
@@ -1316,7 +1443,7 @@ function showTab(tab) {
   document.getElementById('page-' + tab).classList.add('active');
   event.target.classList.add('active');
   if (tab === 'traslados') cargarResumenABC();
-  if (tab === 'admin') cargarBodegasAdmin();
+  if (tab === 'admin') { cargarBodegasAdmin(); cargarCapacidadAdmin(); }
 }
  
 // ── UTILS ──
