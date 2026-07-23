@@ -405,7 +405,7 @@ tbody td.code{color:#0D2137;font-weight:700;font-family:monospace;}
   <div class="tab active" onclick="showTab('dashboard')">Dashboard</div>
   <div class="tab" onclick="showTab('maxmin')">Máximos y Mínimos</div>
   <div class="tab" onclick="showTab('cobertura')">Meses de Inventario</div>
-  <div class="tab" onclick="showTab('catalogo')">Catálogo de Productos</div>
+  <div class="tab" id="tab-catalogo" onclick="showTab('catalogo')" style="display:none;">Catálogo de Productos</div>
   <div class="tab" onclick="showTab('traslados')" id="tab-traslados" style="display:none;">📦 Traslados</div>
   <div class="tab" id="tab-admin" onclick="showTab('admin')" style="display:none;color:#f59e0b;">⚙ Administración</div>
 </div>
@@ -1255,11 +1255,13 @@ function entrarAlModulo() {
     document.getElementById('header-bodega-badge').textContent = 'Admin';
     document.getElementById('header-bodega-nombre').textContent = 'Acceso completo';
     document.getElementById('tab-admin').style.display = 'block';
+    document.getElementById('tab-catalogo').style.display = 'block';
     document.getElementById('tab-traslados').style.display = 'block';
   } else {
     document.getElementById('header-bodega-badge').textContent = 'Bodega ' + bodegaActiva;
     document.getElementById('header-bodega-nombre').textContent = bodegaActivaNombre;
     document.getElementById('tab-admin').style.display = 'none';
+    document.getElementById('tab-catalogo').style.display = 'none';
     document.getElementById('tab-traslados').style.display = 'block';
   }
   document.getElementById('header-bodega-info').style.display = 'flex';
